@@ -19,10 +19,12 @@ import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -33,6 +35,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     private LocationRequest mLocationRequest;
+    private LocationManager mLocationManager;
+    private Marker mDrop;
+    private LocationSource.OnLocationChangedListener mListener;
 
 
     @Override
@@ -74,16 +79,37 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             myCurrentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        }
 
-        //updateUI();
+            mDrop = mMap.addMarker(new MarkerOptions()
+                    .position(placeRandomMarker())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
+                    .title("Timer 15mins"));
+        }
+    }
+
+    public LatLng placeRandomMarker(){
+        double r = 500/111000f;
+        double x0 = myCurrentPosition.longitude;
+        double y0 = myCurrentPosition.latitude;
+        double u = Math.random();
+        double v = Math.random();
+        double w = r * Math.sqrt(u);
+        double t = 2 * Math.PI * v;
+        double x = w * Math.cos(t);
+        double y1 = w * Math.sin(t);
+        double x1 = x / Math.cos(y0);
+
+        double newY = y0 + y1;
+        double newX = x0 + x1;
+        return new LatLng(newY,newX);
+
     }
 
     @Override
     public void onConnectionSuspended(int i) {
 
     }
-    private LocationSource.OnLocationChangedListener mListener;
+
 
     @Override
     public void activate(OnLocationChangedListener listener)
@@ -103,21 +129,17 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         {
             mListener.onLocationChanged( location );
             myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(myCurrentPosition)
-                    .zoom(16)
-                    .bearing(0)
-                    .tilt(30)
-                    .build();
             //mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
             mMap.setLatLngBoundsForCameraTarget(bounds);
-
-            //mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
         }
     }
+
+    //@Override
+   // public void OnTick(){
+
+   // }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -134,6 +156,44 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         super.onStop();
     }
 
+   /* @Override
+    public void onPause()
+    {
+        if(mLocationManager != null)
+        {
+            mLocationManager.removeUpdates(this);
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        if (mMap == null)
+        {
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+
+            if (mMap != null)
+            {
+                mMap.setMyLocationEnabled(true);
+            }
+
+            //This is how you register the LocationSource
+            mMap.setLocationSource(this);
+        }
+
+        if(mLocationManager != null)
+        {
+            mMap.setMyLocationEnabled(true);
+        }
+    }*/
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -144,11 +204,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 .zoom(15)
                 .bearing(0)
                 .tilt(30)
-                .build();    // Creates a CameraPosition from the builder
+                .build();
 
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        //LatLngBounds bounds = new LatLngBounds(new LatLng(myCurrentPosition.latitude, myCurrentPosition.longitude), new LatLng(myCurrentPosition.latitude, myCurrentPosition.longitude));
-        //mMap.setLatLngBoundsForCameraTarget(bounds);
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 }
