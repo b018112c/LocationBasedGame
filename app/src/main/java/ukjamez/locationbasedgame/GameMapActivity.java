@@ -7,6 +7,8 @@ import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -35,17 +37,20 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     private LocationRequest mLocationRequest;
-    private LocationManager mLocationManager;
+    private LocationServices mLocationManager;
     private Marker mDrop;
     private LocationSource.OnLocationChangedListener mListener;
-
+    private boolean mDropPlaced = false;
+    private Button btnPylon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_map);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+        btnPylon = (Button) findViewById(R.id.buttonP);
+
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -57,6 +62,16 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        btnPylon.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(myCurrentPosition)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                        .title("Pylon"));
+            }
+        });
     }
 
     @Override
@@ -74,16 +89,19 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         //UiSettings.setMyLocationButtonEnabled(false);
         mMap.setLocationSource(this);
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             myCurrentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-            mDrop = mMap.addMarker(new MarkerOptions()
+            if(!mDropPlaced){
+                mDrop = mMap.addMarker(new MarkerOptions()
                     .position(placeRandomMarker())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
                     .title("Timer 15mins"));
+                mDropPlaced = true;
+            }
         }
     }
 
@@ -156,42 +174,41 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         super.onStop();
     }
 
-   /* @Override
+    @Override
     public void onPause()
     {
         if(mLocationManager != null)
         {
-            mLocationManager.removeUpdates(this);
+            mLocationManager.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         }
-
         super.onPause();
     }
 
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-
-        if (mMap == null)
-        {
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
-
-            if (mMap != null)
-            {
-                mMap.setMyLocationEnabled(true);
-            }
-
-            //This is how you register the LocationSource
-            mMap.setLocationSource(this);
-        }
-
-        if(mLocationManager != null)
-        {
-            mMap.setMyLocationEnabled(true);
-        }
-    }*/
+//    @Override
+//    public void onResume()
+//    {
+//        super.onResume();
+//
+//        if (mMap == null)
+//        {
+//            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                    .findFragmentById(R.id.map);
+//            mapFragment.getMapAsync(this);
+//
+//            if (mMap != null)
+//            {
+//                //mMap.setMyLocationEnabled(true);
+//            }
+//
+//            //This is how you register the LocationSource
+//            mMap.setLocationSource(this);
+//        }
+//
+//        if(mLocationManager != null)
+//        {
+//            //mMap.setMyLocationEnabled(true);
+//        }
+//    }
 
 
     @Override
