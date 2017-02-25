@@ -4,6 +4,7 @@ import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.CountDownTimer;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.Button;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.server.converter.StringToIntConverter;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -30,7 +32,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource,OnMapReadyCallback {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LatLng myCurrentPosition = new LatLng(-34, 151);
@@ -83,30 +85,45 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(100); // Update location every second
+        mLocationRequest.setInterval(1000); // Update location every second
+        //mLocationRequest.setSmallestDisplacement(1);
 
         mMap.setMyLocationEnabled(true);
+
+        LocationUpdatesBegin();
+
         //UiSettings.setMyLocationButtonEnabled(false);
         mMap.setLocationSource(this);
 
-        mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             myCurrentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-            if(!mDropPlaced){
+            if (!mDropPlaced) {
+                new CountDownTimer(900000, 1000) {
+
+                    public void onTick(long millisUntilFinished) {
+
+                        int seconds = (int) (millisUntilFinished / 1000) % 60 ;
+                        int minutes = (int) ((millisUntilFinished / (1000*60)) % 60);
+                        mDrop.setTitle(String.valueOf(minutes +":" + seconds));
+                    }
+
+                    public void onFinish() {
+                        mDrop.remove();
+                    }
+
+                }.start();
                 mDrop = mMap.addMarker(new MarkerOptions()
-                    .position(placeRandomMarker())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
-                    .title("Timer 15mins"));
+                        .position(placeRandomMarker())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
+                        .title("Timer 15mins"));
                 mDropPlaced = true;
             }
         }
     }
 
-    public LatLng placeRandomMarker(){
-        double r = 500/111000f;
+    public LatLng placeRandomMarker() {
+        double r = 500 / 111000f;
         double x0 = myCurrentPosition.longitude;
         double y0 = myCurrentPosition.latitude;
         double u = Math.random();
@@ -119,7 +136,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         double newY = y0 + y1;
         double newX = x0 + x1;
-        return new LatLng(newY,newX);
+        return new LatLng(newY, newX);
 
     }
 
@@ -130,34 +147,32 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
 
     @Override
-    public void activate(OnLocationChangedListener listener)
-    {
+    public void activate(OnLocationChangedListener listener) {
         mListener = listener;
     }
 
     @Override
-    public void deactivate()
-    {
+    public void deactivate() {
         mListener = null;
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        if( mListener != null )
-        {
-            mListener.onLocationChanged( location );
+        if (mListener != null) {
+            mListener.onLocationChanged(location);
             myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
-            //mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
             mMap.setLatLngBoundsForCameraTarget(bounds);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+
         }
     }
 
     //@Override
-   // public void OnTick(){
+    // public void OnTick(){
 
-   // }
+    // }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -175,40 +190,30 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     }
 
     @Override
-    public void onPause()
-    {
-        if(mLocationManager != null)
-        {
-            mLocationManager.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
+    public void onPause() {
+        if (mLocationManager != null) {
+            mLocationManager.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
         super.onPause();
     }
 
-//    @Override
-//    public void onResume()
-//    {
-//        super.onResume();
-//
-//        if (mMap == null)
-//        {
-//            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                    .findFragmentById(R.id.map);
-//            mapFragment.getMapAsync(this);
-//
-//            if (mMap != null)
-//            {
-//                //mMap.setMyLocationEnabled(true);
-//            }
-//
-//            //This is how you register the LocationSource
-//            mMap.setLocationSource(this);
-//        }
-//
-//        if(mLocationManager != null)
-//        {
-//            //mMap.setMyLocationEnabled(true);
-//        }
-//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
+            LocationUpdatesBegin();
+        }
+    }
+
+    private void LocationUpdatesBegin() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
 
 
     @Override
