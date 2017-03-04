@@ -1,5 +1,7 @@
 package ukjamez.locationbasedgame;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -10,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -44,6 +47,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private LocationSource.OnLocationChangedListener mListener;
     private boolean mDropPlaced = false;
     private Button btnPylon;
+    private TextView txtPylonCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         setContentView(R.layout.activity_game_map);
 
         btnPylon = (Button) findViewById(R.id.buttonP);
+        txtPylonCount = (TextView) findViewById(R.id.textP);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -72,9 +77,26 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         .position(myCurrentPosition)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                         .title("Pylon"));
+                txtPylonCount.setText(Integer.toString(AddPylon(-1)));
             }
         });
+
     }
+
+    private static final String PrefsFile = "PrefsFile";
+
+    private int AddPylon(int val){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        int pylonCount = pref.getInt("pylonCount", 3); //,default
+        int finalValue = pylonCount + val;
+        editor.putInt("pylonCount", finalValue);
+        editor.commit();
+
+        return finalValue;
+    }
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -105,7 +127,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
                         int seconds = (int) (millisUntilFinished / 1000) % 60 ;
                         int minutes = (int) ((millisUntilFinished / (1000*60)) % 60);
-                        mDrop.setTitle(String.valueOf(minutes +":" + seconds));
+                        mDrop.setTitle(String.valueOf(minutes +":" + String.format("%02d",seconds)));
+                        mDrop.showInfoWindow();
                     }
 
                     public void onFinish() {
@@ -117,6 +140,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         .position(placeRandomMarker())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
                         .title("Timer 15mins"));
+                mDrop.showInfoWindow();
                 mDropPlaced = true;
             }
         }
@@ -163,8 +187,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
             LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
             mMap.setLatLngBoundsForCameraTarget(bounds);
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
-            //mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+            //mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
 
         }
     }
