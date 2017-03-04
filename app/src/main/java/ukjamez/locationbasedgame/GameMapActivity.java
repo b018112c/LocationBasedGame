@@ -3,6 +3,7 @@ package ukjamez.locationbasedgame;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -33,6 +34,11 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
@@ -78,11 +84,23 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                         .title("Pylon"));
                 txtPylonCount.setText(Integer.toString(AddPylon(-1)));
+                noOfPylons += 1;
+                markersList.add(myCurrentPosition);
+
+                if(noOfPylons == 3){
+                mMap.addPolygon(new PolygonOptions()
+                        .addAll(markersList)
+                        .strokeColor(Color.CYAN));
+                    noOfPylons = 0;
+                    markersList.clear();
+                }
             }
         });
 
     }
 
+    private ArrayList<LatLng> markersList = new ArrayList<LatLng>();
+    private int noOfPylons = 0;
     private static final String PrefsFile = "PrefsFile";
 
     private int AddPylon(int val){
@@ -105,6 +123,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+        txtPylonCount.setText(String.format("%d",AddPylon(0)));
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(1000); // Update location every second
@@ -142,6 +162,21 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         .title("Timer 15mins"));
                 mDrop.showInfoWindow();
                 mDropPlaced = true;
+
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+                {
+
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        if(mDrop != null && marker.equals(mDrop)){
+                            mDrop.remove();
+                            txtPylonCount.setText(String.format("%d",AddPylon(2)));
+                            return true;
+                        }
+                        return false;
+                    }
+
+                });
             }
         }
     }
