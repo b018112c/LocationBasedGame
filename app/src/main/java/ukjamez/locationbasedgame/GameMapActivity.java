@@ -1,6 +1,8 @@
 package ukjamez.locationbasedgame;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.server.converter.StringToIntConverter;
+import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -69,6 +72,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
+                    .addApi(ActivityRecognition.API)
                     .build();
         }
 
@@ -129,6 +133,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(1000); // Update location every second
         //mLocationRequest.setSmallestDisplacement(1);
+
+        Intent intent = new Intent( this, RecogniseActivity.class );
+        PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 2000, pendingIntent );
 
         mMap.setMyLocationEnabled(true);
 
