@@ -58,6 +58,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private Button btnPylon;
     private TextView txtPylonCount;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
@@ -66,6 +67,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnPylon = (Button) findViewById(R.id.buttonP);
         txtPylonCount = (TextView) findViewById(R.id.textP);
+
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -134,8 +136,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mLocationRequest.setInterval(1000); // Update location every second
         //mLocationRequest.setSmallestDisplacement(1);
 
-        Intent intent = new Intent( this, RecogniseActivity.class );
-        PendingIntent pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+        Intent activityIntent = new Intent( this, RecogniseActivity.class );
+        PendingIntent pendingIntent = PendingIntent.getService( this, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT );
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 2000, pendingIntent );
 
         mMap.setMyLocationEnabled(true);
@@ -212,6 +214,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
     }
 
+public void SetTestText(String value){
+
+}
 
     @Override
     public void activate(OnLocationChangedListener listener) {
