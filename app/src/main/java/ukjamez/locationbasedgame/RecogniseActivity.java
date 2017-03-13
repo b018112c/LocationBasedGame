@@ -2,6 +2,9 @@ package ukjamez.locationbasedgame;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.provider.SyncStateContract;
+import android.support.v4.content.LocalBroadcastManager;
 import android.widget.TextView;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -15,14 +18,18 @@ public class RecogniseActivity extends IntentService {
 
     public RecogniseActivity() {
         super("ActivityRecognizedService");
-        //textTestActivity = (TextView) findViewById(R.id.textTest);
+
     }
 
     public RecogniseActivity(String name) {
         super(name);
+        //textTestActivity = (TextView) textTestActivity.findViewById(R.id.textTest);
     }
 
-    public TextView textTestActivity;
+    //public TextView textTestActivity;
+
+    public String CurrentActivityName = "checking";
+    private static final String PrefsFile = "PrefsFile";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -36,15 +43,21 @@ public class RecogniseActivity extends IntentService {
 
             if(mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && runningConfidence >= walkingConfidence){
                 //textTestActivity.setText("Running");
-            //    mainActivity.SetTestText("Running");
+                CurrentActivityName = "Running";
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT){
-            //    mainActivity.SetTestText("Walking");
+                CurrentActivityName = ("Walking");
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_BICYCLE){
-            //    mainActivity.SetTestText("Running"); //for now
+                CurrentActivityName = ("Running"); //for now
             } else{
-            //    mainActivity.SetTestText("Other");
+                CurrentActivityName = ("Other");
             }
 
+                SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+                SharedPreferences.Editor editor = pref.edit();
+
+                //String val = pref.getString("currentActivity", "N/A");
+                editor.putString("currentActivity", CurrentActivityName);
+                editor.commit();
 
         }
     }

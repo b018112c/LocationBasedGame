@@ -1,8 +1,10 @@
 package ukjamez.locationbasedgame;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -57,7 +59,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private boolean mDropPlaced = false;
     private Button btnPylon;
     private TextView txtPylonCount;
-
+    public TextView textTestActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnPylon = (Button) findViewById(R.id.buttonP);
         txtPylonCount = (TextView) findViewById(R.id.textP);
-
+        textTestActivity = (TextView) findViewById(R.id.textTest);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -215,7 +217,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     }
 
 public void SetTestText(String value){
-
+    textTestActivity.setText(value);
 }
 
     @Override
@@ -237,14 +239,13 @@ public void SetTestText(String value){
             mMap.setLatLngBoundsForCameraTarget(bounds);
             //mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
-
         }
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+        String val = pref.getString("currentActivity", "N/A");
+        SetTestText(val);
     }
 
-    //@Override
-    // public void OnTick(){
 
-    // }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -284,6 +285,7 @@ public void SetTestText(String value){
         }
         mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
     }
 
 
