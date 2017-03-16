@@ -220,8 +220,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
     }
 
-public void SetTestText(String value){
-    textTestActivity.setText(value);
+public void SetTestText(float value){
+    textTestActivity.setText(Float.toString(value));
 }
 
     @Override
@@ -235,11 +235,16 @@ public void SetTestText(String value){
     }
 
     private Boolean CameraSet = false;
+    private float walkDistance = 0;
+    private float runDistance = 0;
 
     @Override
     public void onLocationChanged(Location location) {
         if (mListener != null) {
             mListener.onLocationChanged(location);
+            LatLng lastPosition = null;
+            if(myCurrentPosition != null)
+            lastPosition = myCurrentPosition;
             myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
             LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
             mMap.setLatLngBoundsForCameraTarget(bounds);
@@ -257,11 +262,17 @@ public void SetTestText(String value){
                 {
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
             }
+        if(lastPosition != null) {
+            float[] distance = new float[1];
+            Location.distanceBetween(lastPosition.latitude, lastPosition.longitude, myCurrentPosition.latitude, myCurrentPosition.longitude, distance);
 
+            SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+            String val = pref.getString("currentActivity", "N/A");
+            if (val == "Walking") { walkDistance += distance[0];}
+            else if (val == "Running") {}
         }
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
-        String val = pref.getString("currentActivity", "N/A");
-        SetTestText(val);
+            SetTestText(walkDistance);
+        }
     }
 
     @Override
