@@ -49,7 +49,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LatLng myCurrentPosition = new LatLng(-34, 151);
+    private LatLng myCurrentPosition;
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     private LocationRequest mLocationRequest;
@@ -146,7 +146,11 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         LocationUpdatesBegin();
 
-        //UiSettings.setMyLocationButtonEnabled(false);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setScrollGesturesEnabled(false);
+        mMap.getUiSettings().setTiltGesturesEnabled(false);
+
         mMap.setLocationSource(this);
 
         if (mLastLocation != null) {
@@ -230,6 +234,8 @@ public void SetTestText(String value){
         mListener = null;
     }
 
+    private Boolean CameraSet = false;
+
     @Override
     public void onLocationChanged(Location location) {
         if (mListener != null) {
@@ -237,15 +243,26 @@ public void SetTestText(String value){
             myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
             LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
             mMap.setLatLngBoundsForCameraTarget(bounds);
-            //mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+
+            if(!CameraSet){
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(myCurrentPosition)
+                    .zoom(15)
+                    .bearing(0)
+                    .tilt(30)
+                    .build();
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                CameraSet = true;
+            }else
+                {
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+            }
+
         }
         SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
         String val = pref.getString("currentActivity", "N/A");
         SetTestText(val);
     }
-
-
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -288,20 +305,11 @@ public void SetTestText(String value){
 
     }
 
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-        .target(myCurrentPosition)
-                .zoom(15)
-                .bearing(0)
-                .tilt(30)
-                .build();
-
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        mMap.setMaxZoomPreference(17);
+        mMap.setMinZoomPreference(14);
     }
 }
