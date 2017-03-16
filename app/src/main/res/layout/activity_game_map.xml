@@ -1,5 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
@@ -8,6 +7,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:screenOrientation="portrait"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ukjamez.locationbasedgame.GameMapActivity"
@@ -26,13 +26,13 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="right|top"
-    android:text="[p]"
+    android:text="N/A"
     android:padding="12dp"
     android:layout_marginTop="9dp"
     android:layout_marginEnd="120dp"
     />
 <TextView
-    android:id="@+id/textTest"
+    android:id="@+id/textWalk"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="right|bottom"
@@ -41,6 +41,26 @@
     android:layout_marginBottom="9dp"
     android:layout_marginEnd="9dp"
     />
+    <TextView
+        android:id="@+id/textRun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="test"
+        android:padding="12dp"
+        android:layout_marginBottom="29dp"
+        android:layout_marginEnd="9dp"
+        />
+    <TextView
+        android:id="@+id/textActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="test"
+        android:padding="12dp"
+        android:layout_marginBottom="49dp"
+        android:layout_marginEnd="9dp"
+        />
 </fragment>
 
-</LinearLayout>
+</FrameLayout>

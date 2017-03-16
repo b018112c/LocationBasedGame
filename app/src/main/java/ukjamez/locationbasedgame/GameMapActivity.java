@@ -59,7 +59,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private boolean mDropPlaced = false;
     private Button btnPylon;
     private TextView txtPylonCount;
-    public TextView textTestActivity;
+    public TextView textWalk;
+    public TextView textRun;
+    public TextView textActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +71,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnPylon = (Button) findViewById(R.id.buttonP);
         txtPylonCount = (TextView) findViewById(R.id.textP);
-        textTestActivity = (TextView) findViewById(R.id.textTest);
+        textWalk = (TextView) findViewById(R.id.textWalk);
+        textRun = (TextView) findViewById(R.id.textRun);
+        textActivity = (TextView) findViewById(R.id.textActivity);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -220,10 +224,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
     }
 
-public void SetTestText(float value){
-    textTestActivity.setText(Float.toString(value));
-}
-
     @Override
     public void activate(OnLocationChangedListener listener) {
         mListener = listener;
@@ -269,9 +269,11 @@ public void SetTestText(float value){
             SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
             String val = pref.getString("currentActivity", "N/A");
             if (val == "Walking") { walkDistance += distance[0];}
-            else if (val == "Running") {}
+            else if (val == "Running") { runDistance += distance[0];}
+            textActivity.setText(val);
         }
-            SetTestText(walkDistance);
+            textWalk.setText(Float.toString(walkDistance));
+            textRun.setText(Float.toString(runDistance));
         }
     }
 
