@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -49,19 +50,32 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LatLng myCurrentPosition;
     private GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
     private LocationRequest mLocationRequest;
     private LocationServices mLocationManager;
-    private Marker mDrop;
     private LocationSource.OnLocationChangedListener mListener;
     private boolean mDropPlaced = false;
+
+    private LatLng myCurrentPosition;
+    private LatLng myLastPosition;
+
+    private Marker mDrop;
     private Button btnPylon;
     private TextView txtPylonCount;
     public TextView textWalk;
     public TextView textRun;
     public TextView textActivity;
+    public ProgressBar progressWalk;
+    public ProgressBar progressRun;
+    public ProgressBar progressBoth;
+
+    private ArrayList<LatLng> markersList = new ArrayList<LatLng>();
+    private int noOfPylons = 0;
+    private static final String PrefsFile = "PrefsFile";
+
+    private Boolean CameraSet = false;
+    private float walkDistance = 0;
+    private float runDistance = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +88,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         textWalk = (TextView) findViewById(R.id.textWalk);
         textRun = (TextView) findViewById(R.id.textRun);
         textActivity = (TextView) findViewById(R.id.textActivity);
+        progressWalk = (ProgressBar) findViewById(R.id.progressWalk);
+        progressRun = (ProgressBar) findViewById(R.id.progressRun);
+        progressBoth = (ProgressBar) findViewById(R.id.progressBoth);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -111,9 +128,23 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
     }
 
-    private ArrayList<LatLng> markersList = new ArrayList<LatLng>();
-    private int noOfPylons = 0;
-    private static final String PrefsFile = "PrefsFile";
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+        mMap.setMaxZoomPreference(17);
+        mMap.setMinZoomPreference(14);
+    }
+
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
 
     private int AddPylon(int val){
         SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
@@ -127,7 +158,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         return finalValue;
     }
 
-
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -140,7 +170,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(1000); // Update location every second
-        //mLocationRequest.setSmallestDisplacement(1);
+        mLocationRequest.setSmallestDisplacement(1);
 
         Intent activityIntent = new Intent( this, RecogniseActivity.class );
         PendingIntent pendingIntent = PendingIntent.getService( this, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT );
@@ -148,7 +178,14 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         mMap.setMyLocationEnabled(true);
 
-        LocationUpdatesBegin();
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        myCurrentPosition = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+        myLastPosition = myCurrentPosition;
 
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -157,9 +194,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         mMap.setLocationSource(this);
 
-        if (mLastLocation != null) {
-            myCurrentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
+        if (myCurrentPosition != null) {
             if (!mDropPlaced) {
                 new CountDownTimer(900000, 1000) {
 
@@ -220,76 +255,11 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void activate(OnLocationChangedListener listener) {
-        mListener = listener;
-    }
-
-    @Override
-    public void deactivate() {
-        mListener = null;
-    }
-
-    private Boolean CameraSet = false;
-    private float walkDistance = 0;
-    private float runDistance = 0;
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (mListener != null) {
-            mListener.onLocationChanged(location);
-            LatLng lastPosition = null;
-            if(myCurrentPosition != null)
-            lastPosition = myCurrentPosition;
-            myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
-            LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
-            mMap.setLatLngBoundsForCameraTarget(bounds);
-
-            if(!CameraSet){
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(myCurrentPosition)
-                    .zoom(15)
-                    .bearing(0)
-                    .tilt(30)
-                    .build();
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                CameraSet = true;
-            }else
-                {
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
-            }
-        if(lastPosition != null) {
-            float[] distance = new float[1];
-            Location.distanceBetween(lastPosition.latitude, lastPosition.longitude, myCurrentPosition.latitude, myCurrentPosition.longitude, distance);
-
-            SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
-            String val = pref.getString("currentActivity", "N/A");
-            if (val == "Walking") { walkDistance += distance[0];}
-            else if (val == "Running") { runDistance += distance[0];}
-            textActivity.setText(val);
-        }
-            textWalk.setText(Float.toString(walkDistance));
-            textRun.setText(Float.toString(runDistance));
-        }
-    }
+    public void onConnectionSuspended(int i) {    }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         //buildGoogleApiClient();
-    }
-
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
     }
 
     @Override
@@ -309,20 +279,65 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     }
 
     private void LocationUpdatesBegin() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
 
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-        mMap.setMaxZoomPreference(17);
-        mMap.setMinZoomPreference(14);
+    public void activate(OnLocationChangedListener listener) {
+        mListener = listener;
     }
+
+    @Override
+    public void deactivate() {
+        mListener = null;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (mListener != null) {
+            mListener.onLocationChanged(location);
+
+            if(myCurrentPosition != null)
+                myLastPosition = myCurrentPosition;
+            myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
+            LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
+            mMap.setLatLngBoundsForCameraTarget(bounds);
+
+            if(!CameraSet){
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(myCurrentPosition)
+                        .zoom(15)
+                        .bearing(0)
+                        .tilt(30)
+                        .build();
+                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                CameraSet = true;
+            }else
+            {
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
+            }
+            if(myLastPosition != null) {
+                float[] distance = new float[1];
+                Location.distanceBetween(myLastPosition.latitude, myLastPosition.longitude, myCurrentPosition.latitude, myCurrentPosition.longitude, distance);
+
+                SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+                String val = pref.getString("currentActivity", "N/A");
+                if (val == "Walking") {
+                    walkDistance += distance[0];
+                    progressWalk.setProgress((int)walkDistance);
+                    progressBoth.setProgress((int)walkDistance + (int)runDistance);
+                }
+                else if (val == "Running") {
+                    runDistance += distance[0];
+                    progressRun.setProgress((int)runDistance);
+                    progressBoth.setProgress((int)walkDistance + (int)runDistance);
+                }
+                textActivity.setText(val);
+            }
+            textWalk.setText(Float.toString(walkDistance));
+            textRun.setText(Float.toString(runDistance));
+        }
+    }
+
 }

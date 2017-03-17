@@ -31,25 +31,48 @@
     android:layout_marginTop="9dp"
     android:layout_marginEnd="120dp"
     />
-<TextView
-    android:id="@+id/textWalk"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|bottom"
-    android:text="test"
-    android:padding="12dp"
-    android:layout_marginBottom="9dp"
-    android:layout_marginEnd="9dp"
-    />
+
+    <ProgressBar
+        android:id="@+id/progressRun"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_marginBottom="9dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="250" />
+    <ProgressBar
+        android:id="@+id/progressWalk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_marginBottom="29dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="250" />
+    <ProgressBar
+        android:id="@+id/progressBoth"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_marginBottom="49dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="150" />
     <TextView
         android:id="@+id/textRun"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
-        android:text="test"
-        android:padding="12dp"
-        android:layout_marginBottom="29dp"
-        android:layout_marginEnd="9dp"
+        android:text="0"
+        android:layout_marginBottom="18dp"
+        android:layout_marginEnd="7dp"
+        />
+    <TextView
+        android:id="@+id/textWalk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="0"
+        android:layout_marginBottom="38dp"
+        android:layout_marginEnd="7dp"
         />
     <TextView
         android:id="@+id/textActivity"
@@ -57,9 +80,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:text="test"
-        android:padding="12dp"
-        android:layout_marginBottom="49dp"
-        android:layout_marginEnd="9dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="7dp"
         />
 </fragment>
 
