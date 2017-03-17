@@ -42,12 +42,15 @@ public class RecogniseActivity extends IntentService {
             int runningConfidence = result.getActivityConfidence(8);
 
             if(mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && runningConfidence >= walkingConfidence){
-                //textTestActivity.setText("Running");
                 CurrentActivityName = "Running";
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT){
                 CurrentActivityName = ("Walking");
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_BICYCLE){
-                CurrentActivityName = ("Running"); //for now
+                CurrentActivityName = ("Cycling");
+            } else if (mostLikelyActivity.getType() == DetectedActivity.IN_VEHICLE){
+                CurrentActivityName = ("Driving");
+            } else if (mostLikelyActivity.getType() == DetectedActivity.STILL){
+                CurrentActivityName = ("Still");
             } else{
                 CurrentActivityName = ("Other");
             }
@@ -55,7 +58,7 @@ public class RecogniseActivity extends IntentService {
                 SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
 
-                //String val = pref.getString("currentActivity", "N/A");
+                editor.putString("testConfidence", CurrentActivityName + "/w/" + walkingConfidence + "/r/" + runningConfidence);
                 editor.putString("currentActivity", CurrentActivityName);
                 editor.commit();
 

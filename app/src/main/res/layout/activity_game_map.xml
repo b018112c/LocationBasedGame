@@ -16,19 +16,19 @@
     android:id="@+id/buttonP"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="right|top"
+    android:layout_gravity="right|bottom"
     android:text="Place Pylon"
     android:padding="12dp"
-    android:layout_marginTop="7dp"
+    android:layout_marginBottom="7dp"
     android:layout_marginEnd="7dp"/>
 <TextView
     android:id="@+id/textP"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="right|top"
+    android:layout_gravity="right|bottom"
     android:text="N/A"
     android:padding="12dp"
-    android:layout_marginTop="9dp"
+    android:layout_marginBottom="9dp"
     android:layout_marginEnd="120dp"
     />
 
@@ -36,51 +36,53 @@
         android:id="@+id/progressRun"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:layout_marginBottom="9dp"
+        android:layout_gravity="left|top"
+        android:layout_marginTop="3dp"
         style="?android:attr/progressBarStyleHorizontal"
-        android:max="250" />
-    <ProgressBar
-        android:id="@+id/progressWalk"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:layout_marginBottom="29dp"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:max="250" />
-    <ProgressBar
-        android:id="@+id/progressBoth"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:layout_marginBottom="49dp"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:max="150" />
+        android:max="500" />
     <TextView
         android:id="@+id/textRun"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
+        android:layout_gravity="right|top"
         android:text="0"
-        android:layout_marginBottom="18dp"
+        android:layout_marginTop="0dp"
         android:layout_marginEnd="7dp"
         />
+
+    <ProgressBar
+        android:id="@+id/progressWalk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:layout_marginTop="22dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="500" />
     <TextView
         android:id="@+id/textWalk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
+        android:layout_gravity="right|top"
         android:text="0"
-        android:layout_marginBottom="38dp"
+        android:layout_marginTop="19dp"
         android:layout_marginEnd="7dp"
         />
+
+    <ProgressBar
+        android:id="@+id/progressBoth"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:layout_marginTop="41dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="500" />
     <TextView
         android:id="@+id/textActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
+        android:layout_gravity="right|top"
         android:text="test"
-        android:layout_marginBottom="0dp"
+        android:layout_marginTop="38dp"
         android:layout_marginEnd="7dp"
         />
 </fragment>

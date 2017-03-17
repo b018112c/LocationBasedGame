@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -91,6 +92,13 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         progressWalk = (ProgressBar) findViewById(R.id.progressWalk);
         progressRun = (ProgressBar) findViewById(R.id.progressRun);
         progressBoth = (ProgressBar) findViewById(R.id.progressBoth);
+        progressWalk.getProgressDrawable().setColorFilter(
+                Color.BLUE, android.graphics.PorterDuff.Mode.SRC_IN);
+        progressWalk.setScaleY(4f);progressRun.setScaleY(4f);progressBoth.setScaleY(4f);
+        progressRun.getProgressDrawable().setColorFilter(
+                Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
+        progressBoth.getProgressDrawable().setColorFilter(
+                Color.YELLOW, android.graphics.PorterDuff.Mode.SRC_IN);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -134,6 +142,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
         mMap.setMaxZoomPreference(17);
         mMap.setMinZoomPreference(14);
+        mMap.setPadding(0,140,0,0);
     }
 
     protected void onStart() {
@@ -174,7 +183,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         Intent activityIntent = new Intent( this, RecogniseActivity.class );
         PendingIntent pendingIntent = PendingIntent.getService( this, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT );
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 2000, pendingIntent );
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mGoogleApiClient, 1000, pendingIntent );
 
         mMap.setMyLocationEnabled(true);
 
@@ -274,13 +283,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public void onResume() {
         super.onResume();
         if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
-            LocationUpdatesBegin();
+            //LocationUpdatesBegin();
         }
-    }
-
-    private void LocationUpdatesBegin() {
-
-
     }
 
     @Override
@@ -323,6 +327,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
                 SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
                 String val = pref.getString("currentActivity", "N/A");
+                String test = pref.getString("testConfidence", "N/A");
                 if (val == "Walking") {
                     walkDistance += distance[0];
                     progressWalk.setProgress((int)walkDistance);
@@ -333,7 +338,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     progressRun.setProgress((int)runDistance);
                     progressBoth.setProgress((int)walkDistance + (int)runDistance);
                 }
-                textActivity.setText(val);
+                textActivity.setText(test);
             }
             textWalk.setText(Float.toString(walkDistance));
             textRun.setText(Float.toString(runDistance));
