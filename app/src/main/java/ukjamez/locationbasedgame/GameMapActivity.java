@@ -1,18 +1,13 @@
 package ukjamez.locationbasedgame;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -23,7 +18,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.server.converter.StringToIntConverter;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationListener;
@@ -33,7 +27,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,11 +34,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
@@ -70,16 +60,24 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public ProgressBar progressRun;
     public ProgressBar progressBoth;
 
-    private ArrayList<LatLng> markersList = new ArrayList<LatLng>();
+    private ArrayList<LatLng> markersList = new ArrayList<>();
     private int noOfPylons = 0;
     private static final String PrefsFile = "PrefsFile";
 
     private Boolean CameraSet = false;
+
+    private SharedPreferences _Pref ;//= getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+    private SharedPreferences.Editor _Editor;// = _Pref.edit();
+
     private float walkDistance = 0;
     private float runDistance = 0;
+    private int walkItems = 0;
+    private int runItems = 0;
+    private int otherItems = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_map);
@@ -100,6 +98,15 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         progressBoth.getProgressDrawable().setColorFilter(
                 Color.YELLOW, android.graphics.PorterDuff.Mode.SRC_IN);
 
+        _Pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+        _Editor = _Pref.edit();//warning change this
+        walkDistance = _Pref.getFloat("walkDistance", 0);
+        runDistance =  _Pref.getFloat("runDistance", 0);
+        walkItems =  _Pref.getInt("walkItems", 0);
+        runItems = _Pref.getInt("runItems", 0);
+        progressWalk.setProgress((int) walkDistance);
+        progressRun.setProgress((int) runDistance);
+
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -112,6 +119,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -162,7 +170,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         int pylonCount = pref.getInt("pylonCount", 3); //,default
         int finalValue = pylonCount + val;
         editor.putInt("pylonCount", finalValue);
-        editor.commit();
+        editor.apply();
 
         return finalValue;
     }
@@ -267,7 +275,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public void onConnectionSuspended(int i) {    }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         //buildGoogleApiClient();
     }
 
@@ -282,10 +290,11 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     @Override
     public void onResume() {
         super.onResume();
-        if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
+        //if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
             //LocationUpdatesBegin();
-        }
+        //}
     }
+
 
     @Override
     public void activate(OnLocationChangedListener listener) {
@@ -321,6 +330,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             {
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(myCurrentPosition));
             }
+
             if(myLastPosition != null) {
                 float[] distance = new float[1];
                 Location.distanceBetween(myLastPosition.latitude, myLastPosition.longitude, myCurrentPosition.latitude, myCurrentPosition.longitude, distance);
@@ -330,18 +340,32 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 String test = pref.getString("testConfidence", "N/A");
                 if (val == "Walking") {
                     walkDistance += distance[0];
+                    if (progressWalk.getProgress() > progressWalk.getMax()){
+                        walkDistance -= progressWalk.getMax();
+                        walkItems+=1;
+                        _Editor.putInt("walkItems", walkItems);
+                        textWalk.setText(Float.toString(walkItems));
+                    }
                     progressWalk.setProgress((int)walkDistance);
-                    progressBoth.setProgress((int)walkDistance + (int)runDistance);
+                    //progressBoth.setProgress((int)walkDistance + (int)runDistance);
                 }
                 else if (val == "Running") {
                     runDistance += distance[0];
+                    if (progressRun.getProgress() > progressRun.getMax()){
+                        runDistance -= progressRun.getMax();
+                        runItems+=1;
+                        _Editor.putInt("runItems", runItems);
+                        textRun.setText(Float.toString(runItems));
+                    }
                     progressRun.setProgress((int)runDistance);
-                    progressBoth.setProgress((int)walkDistance + (int)runDistance);
+                    //progressBoth.setProgress((int)walkDistance + (int)runDistance);
                 }
                 textActivity.setText(test);
             }
-            textWalk.setText(Float.toString(walkDistance));
-            textRun.setText(Float.toString(runDistance));
+
+            _Editor.putFloat("walkDistance", walkDistance);
+            _Editor.putFloat("RunDistance", runDistance);
+            _Editor.commit();
         }
     }
 
