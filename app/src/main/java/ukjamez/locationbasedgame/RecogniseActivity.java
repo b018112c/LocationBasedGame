@@ -42,6 +42,7 @@ public class RecogniseActivity extends IntentService {
             int runningConfidence = result.getActivityConfidence(8);
 
             if(mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && runningConfidence >= walkingConfidence){
+                if(result.getActivityConfidence(0) < 40)
                 CurrentActivityName = "Running";
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT){
                 CurrentActivityName = ("Walking");
@@ -58,7 +59,7 @@ public class RecogniseActivity extends IntentService {
                 SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
 
-                editor.putString("testConfidence", CurrentActivityName + "/w/" + walkingConfidence + "/r/" + runningConfidence);
+                editor.putString("testConfidence", CurrentActivityName + "/d/" + result.getActivityConfidence(0) + "/r/" + result.getActivityConfidence(8));
                 editor.putString("currentActivity", CurrentActivityName);
                 editor.commit();
 

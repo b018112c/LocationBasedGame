@@ -69,7 +69,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private Boolean CameraSet = false;
 
     private SharedPreferences _Pref ;//= getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
-    private SharedPreferences.Editor _Editor;// = _Pref.edit();
 
     private float walkDistance = 0;
     private float runDistance = 0;
@@ -102,11 +101,12 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 Color.YELLOW, android.graphics.PorterDuff.Mode.SRC_IN);
 
         _Pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
-        _Editor = _Pref.edit();//warning change this
+
         walkDistance = _Pref.getFloat("walkDistance", 0);
         runDistance =  _Pref.getFloat("runDistance", 0);
-        walkItems =  _Pref.getInt("walkItems", 0);
-        runItems = _Pref.getInt("runItems", 0);
+        walkItems =  _Pref.getInt("walkItems", 2);
+        runItems = _Pref.getInt("runItems", 1);
+        otherItems = 5;
         progressWalk.setProgress((int) walkDistance);
         progressRun.setProgress((int) runDistance);
 
@@ -345,37 +345,41 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 float[] distance = new float[1];
                 Location.distanceBetween(myLastPosition.latitude, myLastPosition.longitude, myCurrentPosition.latitude, myCurrentPosition.longitude, distance);
 
-                SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
-                String val = pref.getString("currentActivity", "N/A");
-                String test = pref.getString("testConfidence", "N/A");
+                //SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+                String val = _Pref.getString("currentActivity", "N/A");//use int
+                String test = _Pref.getString("testConfidence", "N/A");
                 if (val == "Walking") {
                     walkDistance += distance[0];
-                    if (progressWalk.getProgress() > progressWalk.getMax()){
-                        walkDistance -= progressWalk.getMax();
+                    if ((int)walkDistance >= 500){
+                        walkDistance -= 500;
                         walkItems+=1;
-                        _Editor.putInt("walkItems", walkItems);
                         textWalk.setText(Float.toString(walkItems));
+                        SharedPreferences.Editor editor = _Pref.edit();
+                        editor.putInt("walkItems", walkItems);
+                        editor.commit();
                     }
                     progressWalk.setProgress((int)walkDistance);
                     //progressBoth.setProgress((int)walkDistance + (int)runDistance);
                 }
                 else if (val == "Running") {
                     runDistance += distance[0];
-                    if (progressRun.getProgress() > progressRun.getMax()){
-                        runDistance -= progressRun.getMax();
+                    if ((int)runDistance >= 500){
+                        runDistance -= 500;
                         runItems+=1;
-                        _Editor.putInt("runItems", runItems);
                         textRun.setText(Float.toString(runItems));
+                        SharedPreferences.Editor editor = _Pref.edit();
+                        editor.putInt("runItems", runItems);
+                        editor.commit();
                     }
                     progressRun.setProgress((int)runDistance);
                     //progressBoth.setProgress((int)walkDistance + (int)runDistance);
                 }
                 textActivity.setText(test);
             }
-
-            _Editor.putFloat("walkDistance", walkDistance);
-            _Editor.putFloat("RunDistance", runDistance);
-            _Editor.apply();
+            SharedPreferences.Editor editor = _Pref.edit();
+            editor.putFloat("walkDistance", walkDistance);
+            editor.putFloat("RunDistance", runDistance);
+            editor.commit();
         }
     }
 
