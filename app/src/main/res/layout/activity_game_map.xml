@@ -12,7 +12,17 @@
     android:layout_height="match_parent"
     tools:context="ukjamez.locationbasedgame.GameMapActivity"
     tools:layout="@layout/activity_game_map">
-<Button
+    <Button
+        android:id="@+id/buttonD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="Call Airdrop"
+        android:padding="12dp"
+        android:layout_marginBottom="52dp"
+        android:layout_marginEnd="7dp"/>
+
+    <Button
     android:id="@+id/buttonP"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

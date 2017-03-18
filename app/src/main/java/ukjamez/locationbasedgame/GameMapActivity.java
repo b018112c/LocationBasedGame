@@ -29,6 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -45,13 +46,14 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private LocationRequest mLocationRequest;
     private LocationServices mLocationManager;
     private LocationSource.OnLocationChangedListener mListener;
-    private boolean mDropPlaced = false;
+    private boolean mDropUsed = false;
 
     private LatLng myCurrentPosition;
     private LatLng myLastPosition;
 
     private Marker mDrop;
     private Button btnPylon;
+    private Button btnDrop;
     private TextView txtPylonCount;
     public TextView textWalk;
     public TextView textRun;
@@ -84,6 +86,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnPylon = (Button) findViewById(R.id.buttonP);
         txtPylonCount = (TextView) findViewById(R.id.textP);
+        btnDrop = (Button) findViewById(R.id.buttonD);
         textWalk = (TextView) findViewById(R.id.textWalk);
         textRun = (TextView) findViewById(R.id.textRun);
         textActivity = (TextView) findViewById(R.id.textActivity);
@@ -120,28 +123,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
-        btnPylon.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                mMap.addMarker(new MarkerOptions()
-                        .position(myCurrentPosition)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                        .title("Pylon"));
-                txtPylonCount.setText(Integer.toString(AddPylon(-1)));
-                noOfPylons += 1;
-                markersList.add(myCurrentPosition);
-
-                if(noOfPylons == 3){
-                mMap.addPolygon(new PolygonOptions()
-                        .addAll(markersList)
-                        .strokeColor(Color.CYAN));
-                    noOfPylons = 0;
-                    markersList.clear();
-                }
-            }
-        });
-
     }
 
     @Override
@@ -151,6 +132,74 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setMaxZoomPreference(17);
         mMap.setMinZoomPreference(14);
         mMap.setPadding(0,140,0,0);
+
+        btnPylon.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mMap.addMarker(new MarkerOptions()
+                        .position(myCurrentPosition)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                        .title("Pylon"));
+                mMap.addCircle(new CircleOptions()
+                        .center(myCurrentPosition)
+                        .radius(200)
+                        .strokeColor(Color.RED)
+                        .fillColor(Color.argb(50,255,0,0)));
+                txtPylonCount.setText(Integer.toString(AddPylon(-1)));
+                noOfPylons += 1;
+                markersList.add(myCurrentPosition);
+
+                if(noOfPylons == 3){
+                    mMap.addPolygon(new PolygonOptions()
+                            .addAll(markersList)
+                            .strokeColor(Color.CYAN));
+                    noOfPylons = 0;
+                    markersList.clear();
+                }
+            }
+        });
+
+        btnDrop.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (!mDropUsed) {
+                    new CountDownTimer(900000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+
+                            int seconds = (int) (millisUntilFinished / 1000) % 60 ;
+                            int minutes = (int) ((millisUntilFinished / (1000*60)) % 60);
+                            mDrop.setTitle(String.valueOf(minutes +":" + String.format("%02d",seconds)));
+                            mDrop.showInfoWindow();
+                        }
+
+                        public void onFinish() {
+                            mDrop.remove();
+                        }
+
+                    }.start();
+                    mDrop = mMap.addMarker(new MarkerOptions()
+                            .position(placeRandomMarker(500, 1))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
+                            .title("Airdrop"));
+                    mDrop.showInfoWindow();
+                    mDropUsed = true;
+                    btnDrop.setVisibility(View.INVISIBLE);
+
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+                    {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            if(mDrop != null && marker.equals(mDrop)){
+                                mDrop.remove();
+                                txtPylonCount.setText(String.format("%d",AddPylon(2)));
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                }
+            }
+        });
+        //if (myCurrentPosition != null) {}
     }
 
     protected void onStart() {
@@ -210,65 +259,26 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.getUiSettings().setTiltGesturesEnabled(false);
 
         mMap.setLocationSource(this);
-
-        if (myCurrentPosition != null) {
-            if (!mDropPlaced) {
-                new CountDownTimer(900000, 1000) {
-
-                    public void onTick(long millisUntilFinished) {
-
-                        int seconds = (int) (millisUntilFinished / 1000) % 60 ;
-                        int minutes = (int) ((millisUntilFinished / (1000*60)) % 60);
-                        mDrop.setTitle(String.valueOf(minutes +":" + String.format("%02d",seconds)));
-                        mDrop.showInfoWindow();
-                    }
-
-                    public void onFinish() {
-                        mDrop.remove();
-                    }
-
-                }.start();
-                mDrop = mMap.addMarker(new MarkerOptions()
-                        .position(placeRandomMarker())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
-                        .title("Timer 15mins"));
-                mDrop.showInfoWindow();
-                mDropPlaced = true;
-
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-                {
-
-                    @Override
-                    public boolean onMarkerClick(Marker marker) {
-                        if(mDrop != null && marker.equals(mDrop)){
-                            mDrop.remove();
-                            txtPylonCount.setText(String.format("%d",AddPylon(2)));
-                            return true;
-                        }
-                        return false;
-                    }
-
-                });
-            }
-        }
     }
 
-    public LatLng placeRandomMarker() {
-        double r = 500 / 111000f;
+    public LatLng placeRandomMarker(int radius, double distance) {
+        double r = radius / 111320f;
         double x0 = myCurrentPosition.longitude;
         double y0 = myCurrentPosition.latitude;
-        double u = Math.random();
+
+        double u = distance;
         double v = Math.random();
         double w = r * Math.sqrt(u);
         double t = 2 * Math.PI * v;
+
         double x = w * Math.cos(t);
         double y1 = w * Math.sin(t);
         double x1 = x / Math.cos(y0);
 
         double newY = y0 + y1;
         double newX = x0 + x1;
-        return new LatLng(newY, newX);
 
+        return new LatLng(newY, newX);
     }
 
     @Override
@@ -365,7 +375,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
             _Editor.putFloat("walkDistance", walkDistance);
             _Editor.putFloat("RunDistance", runDistance);
-            _Editor.commit();
+            _Editor.apply();
         }
     }
 
