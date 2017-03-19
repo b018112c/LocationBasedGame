@@ -206,7 +206,11 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(marker.getSnippet().equals("T1")){
+                if(mDrop != null && marker.equals(mDrop)){
+                    mDrop.remove();
+                    txtPylonCount.setText(String.format("%d",AddPylon(2)));
+                    return true;
+                }else if(marker.getSnippet().equals("T1")){
                     marker.remove();
                     t1Count+=1;
                     textT1Count.setText(String.format("%d",t1Count));
@@ -220,10 +224,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     marker.remove();
                     t3Count+=1;
                     textT3Count.setText(String.format("%d",t3Count));
-                    return true;
-                }else if(mDrop != null && marker.equals(mDrop)){
-                    mDrop.remove();
-                    txtPylonCount.setText(String.format("%d",AddPylon(2)));
                     return true;
                 }
                 return false;
