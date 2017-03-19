@@ -62,6 +62,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public ProgressBar progressWalk;
     public ProgressBar progressRun;
     public ProgressBar progressBoth;
+    public TextView textT1Count;
+    public TextView textT2Count;
+    public TextView textT3Count;
 
     private ArrayList<LatLng> markersList = new ArrayList<>();
     private int noOfPylons = 0;
@@ -76,6 +79,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private int walkItems = 0;
     private int runItems = 0;
     private int otherItems = 0;
+    private int t1Count = 0;
+    private int t2Count = 0;
+    private int t3Count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,12 +100,15 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         progressRun = (ProgressBar) findViewById(R.id.progressRun);
         progressBoth = (ProgressBar) findViewById(R.id.progressBoth);
         progressWalk.getProgressDrawable().setColorFilter(
-                Color.BLUE, android.graphics.PorterDuff.Mode.SRC_IN);
+                Color.rgb(255,127,0), android.graphics.PorterDuff.Mode.SRC_IN);
         progressWalk.setScaleY(4f);progressRun.setScaleY(4f);progressBoth.setScaleY(4f);
         progressRun.getProgressDrawable().setColorFilter(
                 Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
         progressBoth.getProgressDrawable().setColorFilter(
                 Color.YELLOW, android.graphics.PorterDuff.Mode.SRC_IN);
+        textT1Count = (TextView) findViewById(R.id.textT1);
+        textT2Count = (TextView) findViewById(R.id.textT2);
+        textT3Count = (TextView) findViewById(R.id.textT3);
 
         _Pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
 
@@ -152,18 +161,18 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 //randomly add animal markers
                 int tier1quantity = random.nextInt(3) + 2;
                 for(int i = 0; i < tier1quantity; i++){
-                    LatLng location = placeRandomMarker(215, Math.random());//store this
+                    LatLng location = placeRandomMarker(215, Math.random(),myCurrentPosition);//store this
                     mMap.addMarker(new MarkerOptions()
-                            .position(location)
+                            .position(location).snippet("T1")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                 }
 
                 int tier2quantity = random.nextInt(3) + 0;
                 for(int i = 0; i < tier2quantity; i++){
-                    LatLng location = placeRandomMarker(215, Math.random());//store this
+                    LatLng location = placeRandomMarker(215, Math.random(),myCurrentPosition);//store this
                     mMap.addMarker(new MarkerOptions()
-                            .position(location)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                            .position(location).snippet("T2")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                 }
 
                 if(noOfPylons == 3){
@@ -171,8 +180,53 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                             .addAll(markersList)
                             .strokeColor(Color.CYAN));
                     noOfPylons = 0;
+                    for (LatLng marker : markersList)
+                    {
+                        int tier2quantity2 = random.nextInt(4) + 2;
+                        for(int i = 0; i < tier2quantity2; i++){
+                            LatLng location = placeRandomMarker(215, Math.random(),marker);//store this
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(location).snippet("T2")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                        }
+                        int tier3quantity2 = random.nextInt(3) + 0;
+                        for(int i = 0; i < tier3quantity2; i++){
+                            LatLng location = placeRandomMarker(215, Math.random(),marker);//store this
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(location).snippet("T3")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                        }
+                    }
                     markersList.clear();
                 }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+        {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if(marker.getSnippet().equals("T1")){
+                    marker.remove();
+                    t1Count+=1;
+                    textT1Count.setText(String.format("%d",t1Count));
+                    return true;
+                }else if(marker.getSnippet().equals("T2")){
+                    marker.remove();
+                    t2Count+=1;
+                    textT2Count.setText(String.format("%d",t2Count));
+                    return true;
+                }else if(marker.getSnippet().equals("T3")){
+                    marker.remove();
+                    t3Count+=1;
+                    textT3Count.setText(String.format("%d",t3Count));
+                    return true;
+                }else if(mDrop != null && marker.equals(mDrop)){
+                    mDrop.remove();
+                    txtPylonCount.setText(String.format("%d",AddPylon(2)));
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -195,25 +249,25 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
                     }.start();
                     mDrop = mMap.addMarker(new MarkerOptions()
-                            .position(placeRandomMarker(500, 1))
+                            .position(placeRandomMarker(500, 1,myCurrentPosition))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
                             .title("Airdrop"));
                     mDrop.showInfoWindow();
                     mDropUsed = true;
                     btnDrop.setVisibility(View.INVISIBLE);
 
-                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-                    {
-                        @Override
-                        public boolean onMarkerClick(Marker marker) {
-                            if(mDrop != null && marker.equals(mDrop)){
-                                mDrop.remove();
-                                txtPylonCount.setText(String.format("%d",AddPylon(2)));
-                                return true;
-                            }
-                            return false;
-                        }
-                    });
+//                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+//                    {
+//                        @Override
+//                        public boolean onMarkerClick(Marker marker) {
+//                            if(mDrop != null && marker.equals(mDrop)){
+//                                mDrop.remove();
+//                                txtPylonCount.setText(String.format("%d",AddPylon(2)));
+//                                return true;
+//                            }
+//                            return false;
+//                        }
+//                    });
                 }
             }
         });
@@ -279,10 +333,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setLocationSource(this);
     }
 
-    public LatLng placeRandomMarker(int radius, double distance) {
+    public LatLng placeRandomMarker(int radius, double distance, LatLng location) {
         double r = radius / 111320f;
-        double x0 = myCurrentPosition.longitude;
-        double y0 = myCurrentPosition.latitude;
+        double x0 = location.longitude;
+        double y0 = location.latitude;
 
         double u = distance;
         double v = Math.random();
