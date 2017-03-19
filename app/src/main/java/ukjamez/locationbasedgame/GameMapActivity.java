@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
@@ -135,18 +136,35 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mMap.addMarker(new MarkerOptions()
-                        .position(myCurrentPosition)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
-                        .title("Pylon"));
+                //mMap.addMarker(new MarkerOptions()
+                //        .position(myCurrentPosition)
+                //        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                 mMap.addCircle(new CircleOptions()
                         .center(myCurrentPosition)
-                        .radius(200)
-                        .strokeColor(Color.RED)
-                        .fillColor(Color.argb(50,255,0,0)));
+                        .radius(250)
+                        .strokeColor(Color.argb(90,127,0,255))
+                        .fillColor(Color.argb(50,127,0,255)));
                 txtPylonCount.setText(Integer.toString(AddPylon(-1)));
                 noOfPylons += 1;
                 markersList.add(myCurrentPosition);
+
+                Random random = new Random();
+                //randomly add animal markers
+                int tier1quantity = random.nextInt(3) + 2;
+                for(int i = 0; i < tier1quantity; i++){
+                    LatLng location = placeRandomMarker(215, Math.random());//store this
+                    mMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                }
+
+                int tier2quantity = random.nextInt(3) + 0;
+                for(int i = 0; i < tier2quantity; i++){
+                    LatLng location = placeRandomMarker(215, Math.random());//store this
+                    mMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                }
 
                 if(noOfPylons == 3){
                     mMap.addPolygon(new PolygonOptions()
@@ -178,7 +196,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     }.start();
                     mDrop = mMap.addMarker(new MarkerOptions()
                             .position(placeRandomMarker(500, 1))
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
                             .title("Airdrop"));
                     mDrop.showInfoWindow();
                     mDropUsed = true;
