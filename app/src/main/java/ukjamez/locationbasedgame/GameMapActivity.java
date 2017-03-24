@@ -284,6 +284,25 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         super.onStop();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mLocationManager != null) {
+            mLocationManager.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        //if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
+        //LocationUpdatesBegin();
+        //}
+    }
+
     private int AddPylon(int val){
         SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
@@ -294,6 +313,26 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         editor.apply();
 
         return finalValue;
+    }
+
+    public LatLng placeRandomMarker(int radius, double distance, LatLng location) {
+        double r = radius / 111320f;
+        double x0 = location.longitude;
+        double y0 = location.latitude;
+
+        double u = distance;
+        double v = Math.random();
+        double w = r * Math.sqrt(u);
+        double t = 2 * Math.PI * v;
+
+        double x = w * Math.cos(t);
+        double y1 = w * Math.sin(t);
+        double x1 = x / Math.cos(y0);
+
+        double newY = y0 + y1;
+        double newX = x0 + x1;
+
+        return new LatLng(newY, newX);
     }
 
     @Override
@@ -333,50 +372,16 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setLocationSource(this);
     }
 
-    public LatLng placeRandomMarker(int radius, double distance, LatLng location) {
-        double r = radius / 111320f;
-        double x0 = location.longitude;
-        double y0 = location.latitude;
-
-        double u = distance;
-        double v = Math.random();
-        double w = r * Math.sqrt(u);
-        double t = 2 * Math.PI * v;
-
-        double x = w * Math.cos(t);
-        double y1 = w * Math.sin(t);
-        double x1 = x / Math.cos(y0);
-
-        double newY = y0 + y1;
-        double newX = x0 + x1;
-
-        return new LatLng(newY, newX);
-    }
-
     @Override
-    public void onConnectionSuspended(int i) {    }
+    public void onConnectionSuspended(int i) {
+        if (mLocationManager != null) {
+        mLocationManager.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         //buildGoogleApiClient();
     }
-
-    @Override
-    public void onPause() {
-        if (mLocationManager != null) {
-            mLocationManager.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
-            //LocationUpdatesBegin();
-        //}
-    }
-
 
     @Override
     public void activate(OnLocationChangedListener listener) {
