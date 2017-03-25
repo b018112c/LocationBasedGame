@@ -39,8 +39,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,9 +51,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
-class Dome {
-    public LatLng Location;
+class DomeCircle {
+    public int Index;
+    public Circle Dome;
     public String RemoveDate;
+}
+
+//class DomeConnected {
+//    public ArrayList<LatLng> Domes;
+//    public String RemoveDate;
+//
+//}
+
+class Collectible {
+    public Location Location;
+    public int Tier;
 }
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -80,12 +95,13 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public TextView textT2Count;
     public TextView textT3Count;
 
-    private Dome[] domesArray = new Dome[12];
-    private int nextItem = 0;
+    private DomeCircle[] domesArray = new DomeCircle[9];
+
+    private ArrayList<Collectible> collectibles = new ArrayList<>();
+
     private ArrayList<LatLng> pylonsList = new ArrayList<>();
     private int noOfPylons = 0;
     private static final String PrefsFile = "PrefsFile";
-    private ArrayList<ArrayList<LatLng>> connectedList = new ArrayList<>();
     private ArrayList<LatLng> tier1List = new ArrayList<>();
     private ArrayList<LatLng> tier2List = new ArrayList<>();
     private ArrayList<LatLng> tier3List = new ArrayList<>();
@@ -156,23 +172,46 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         loadLocations();
     }
 
+    private void saveLocations(){
+        File file = new File("locations.csv");
+        if(file.exists()){
+            try {
+                FileWriter fileWriter  = new FileWriter(file);
+                BufferedWriter bfWriter = new BufferedWriter(fileWriter);
+                for (DomeCircle dome: domesArray ) {
+                    bfWriter.write(dome.Index + dome.Dome.getCenter().latitude + "," + dome.Dome.getCenter().latitude + "," + dome.RemoveDate);
+                }
+                bfWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void loadLocations(){
         try {
-            InputStreamReader inputreader = new InputStreamReader(getResources().openRawResource(R.raw.locations));
-            BufferedReader br= new BufferedReader(inputreader);
+            InputStreamReader iReader = new InputStreamReader(getResources().openRawResource(R.raw.locations));
+            BufferedReader br= new BufferedReader(iReader);
             String line = "";
             for(int l = 0; l < 11; l++)
             {
                 line = br.readLine();
                 if(line.contains(",")){
-                domesArray[l].Location=(new LatLng(Double.parseDouble(line.split(",")[0]), Double.parseDouble(line.split(",")[1])));
-                mMap.addCircle(new CircleOptions()
-                        .center(domesArray[l].Location)
-                        .radius(250)
-                        .strokeColor(Color.argb(90,127,0,255))
-                        .fillColor(Color.argb(50,127,0,255)));
+                    String[] splitLine = line.split(",");
+
+                LatLng dl =(new LatLng(Double.parseDouble(splitLine[0]), Double.parseDouble(splitLine[1])));
+                    if(splitLine[2] == "PAST DATE"){
+                        domesArray[l].RemoveDate = splitLine[2];
+                        domesArray[l].Dome = mMap.addCircle(new CircleOptions()
+                                .center(dl)
+                                .radius(250)
+                                .strokeColor(Color.argb(90,127,0,255))
+                                .fillColor(Color.argb(50,127,0,255)));
+                    }
                 }
             }
+
+            //calculate triangle connected polylines
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -242,7 +281,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                         }
                     }
-                    connectedList.add(pylonsList);
+                    //connectedList.add(pylonsList);
 
                     pylonsList.clear();
                 }
