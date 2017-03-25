@@ -29,6 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -36,8 +37,21 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
+
+class Dome {
+    public LatLng Location;
+    public String RemoveDate;
+}
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
@@ -66,9 +80,15 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public TextView textT2Count;
     public TextView textT3Count;
 
-    private ArrayList<LatLng> markersList = new ArrayList<>();
+    private Dome[] domesArray = new Dome[12];
+    private int nextItem = 0;
+    private ArrayList<LatLng> pylonsList = new ArrayList<>();
     private int noOfPylons = 0;
     private static final String PrefsFile = "PrefsFile";
+    private ArrayList<ArrayList<LatLng>> connectedList = new ArrayList<>();
+    private ArrayList<LatLng> tier1List = new ArrayList<>();
+    private ArrayList<LatLng> tier2List = new ArrayList<>();
+    private ArrayList<LatLng> tier3List = new ArrayList<>();
 
     private Boolean CameraSet = false;
 
@@ -133,6 +153,32 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        loadLocations();
+    }
+
+    private void loadLocations(){
+        try {
+            InputStreamReader inputreader = new InputStreamReader(getResources().openRawResource(R.raw.locations));
+            BufferedReader br= new BufferedReader(inputreader);
+            String line = "";
+            for(int l = 0; l < 11; l++)
+            {
+                line = br.readLine();
+                if(line.contains(",")){
+                domesArray[l].Location=(new LatLng(Double.parseDouble(line.split(",")[0]), Double.parseDouble(line.split(",")[1])));
+                mMap.addCircle(new CircleOptions()
+                        .center(domesArray[l].Location)
+                        .radius(250)
+                        .strokeColor(Color.argb(90,127,0,255))
+                        .fillColor(Color.argb(50,127,0,255)));
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -143,11 +189,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setMinZoomPreference(14);
         mMap.setPadding(0,140,0,0);
 
+
+
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //mMap.addMarker(new MarkerOptions()
-                //        .position(myCurrentPosition)
-                //        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                 mMap.addCircle(new CircleOptions()
                         .center(myCurrentPosition)
                         .radius(250)
@@ -155,7 +200,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         .fillColor(Color.argb(50,127,0,255)));
                 txtPylonCount.setText(Integer.toString(AddPylon(-1)));
                 noOfPylons += 1;
-                markersList.add(myCurrentPosition);
+                pylonsList.add(myCurrentPosition);
 
                 Random random = new Random();
                 //randomly add animal markers
@@ -177,10 +222,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
                 if(noOfPylons == 3){
                     mMap.addPolygon(new PolygonOptions()
-                            .addAll(markersList)
+                            .addAll(pylonsList)
                             .strokeColor(Color.CYAN));
                     noOfPylons = 0;
-                    for (LatLng marker : markersList)
+                    for (LatLng marker : pylonsList)
                     {
                         int tier2quantity2 = random.nextInt(4) + 2;
                         for(int i = 0; i < tier2quantity2; i++){
@@ -197,7 +242,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                         }
                     }
-                    markersList.clear();
+                    connectedList.add(pylonsList);
+
+                    pylonsList.clear();
                 }
             }
         });
@@ -256,18 +303,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     mDropUsed = true;
                     btnDrop.setVisibility(View.INVISIBLE);
 
-//                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-//                    {
-//                        @Override
-//                        public boolean onMarkerClick(Marker marker) {
-//                            if(mDrop != null && marker.equals(mDrop)){
-//                                mDrop.remove();
-//                                txtPylonCount.setText(String.format("%d",AddPylon(2)));
-//                                return true;
-//                            }
-//                            return false;
-//                        }
-//                    });
+
                 }
             }
         });
@@ -333,6 +369,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         double newX = x0 + x1;
 
         return new LatLng(newY, newX);
+    }
+
+    public LatLng newRandomMarker(int radius, double distance, LatLng location){
+        return myCurrentPosition;
     }
 
     @Override
