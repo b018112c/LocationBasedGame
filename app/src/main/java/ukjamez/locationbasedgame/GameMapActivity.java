@@ -110,6 +110,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private int walkItems = 0;
     private int runItems = 0;
     private int otherItems = 0;
+
     private int t1Count = 0;
     private int t2Count = 0;
     private int t3Count = 0;
@@ -146,10 +147,20 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         walkDistance = _Pref.getFloat("walkDistance", 0);
         runDistance =  _Pref.getFloat("runDistance", 0);
         walkItems =  _Pref.getInt("walkItems", 2);
+        textWalk.setText(Integer.toString(walkItems));
         runItems = _Pref.getInt("runItems", 1);
+        textRun.setText(Integer.toString(runItems));
         otherItems = 5;
+        //other items set text activity field
         progressWalk.setProgress((int) walkDistance);
         progressRun.setProgress((int) runDistance);
+
+        t1Count = _Pref.getInt("tier1Count",0);
+        textT1Count.setText(Integer.toString(t1Count));
+        t2Count = _Pref.getInt("tier2Count",0);
+        textT2Count.setText(Integer.toString(t2Count));
+        t3Count = _Pref.getInt("tier3Count",0);
+        textT3Count.setText(Integer.toString(t3Count));
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -349,22 +360,37 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     mDrop.remove();
                     txtPylonCount.setText(String.format("%d",AddPylon(2)));
                     return true;
-                }else if(marker.getSnippet().equals("T1")){ //probably don't need the snippets
+                }else if(marker.getSnippet().equals("T1") && otherItems>0){ //probably don't need the snippets
                     tier1List.remove(marker);marker.remove();
+                    //otherItems -= 1;
                     t1Count+=1;
                     textT1Count.setText(String.format("%d",t1Count));
+                    SharedPreferences.Editor editor = _Pref.edit();
+                    //editor.putInt("otherItems", otherItems);
+                    editor.putInt("tier1Count", t1Count);
+                    editor.commit();
                     saveCollectibles();
                     return true;
-                }else if(marker.getSnippet().equals("T2")){
+                }else if(marker.getSnippet().equals("T2") && walkItems>0){
                     tier2List.remove(marker);marker.remove();
+                    walkItems -= 1;
                     t2Count+=1;
                     textT2Count.setText(String.format("%d",t2Count));
+                    SharedPreferences.Editor editor = _Pref.edit();
+                    editor.putInt("walkItems", walkItems);
+                    editor.putInt("tier2Count", t2Count);
+                    editor.commit();
                     saveCollectibles();
                     return true;
-                }else if(marker.getSnippet().equals("T3")){
+                }else if(marker.getSnippet().equals("T3") && runItems>0){
                     tier3List.remove(marker);marker.remove();
+                    runItems -= 1;
                     t3Count+=1;
                     textT3Count.setText(String.format("%d",t3Count));
+                    SharedPreferences.Editor editor = _Pref.edit();
+                    editor.putInt("runItems", runItems);
+                    editor.putInt("tier3Count", t3Count);
+                    editor.commit();
                     saveCollectibles();
                     return true;
                 }
@@ -565,7 +591,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     walkDistance += distance[0];
                     if ((int)walkDistance >= 500){
                         walkDistance -= 500;
-                        walkItems+=1;
+                        walkItems+=2;
                         textWalk.setText(Float.toString(walkItems));
                         SharedPreferences.Editor editor = _Pref.edit();
                         editor.putInt("walkItems", walkItems);
@@ -578,7 +604,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     runDistance += distance[0];
                     if ((int)runDistance >= 500){
                         runDistance -= 500;
-                        runItems+=1;
+                        runItems+=2;
                         textRun.setText(Float.toString(runItems));
                         SharedPreferences.Editor editor = _Pref.edit();
                         editor.putInt("runItems", runItems);
