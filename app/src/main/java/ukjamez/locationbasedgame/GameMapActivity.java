@@ -62,7 +62,6 @@ import java.util.Timer;
 class DomeCircle {
     public int Index;
     public Circle Dome;
-    public Date RemoveDate;
 }
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -173,11 +172,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         SharedPreferences.Editor editor = pref.edit();
         String allDomes = "";
                 for (DomeCircle dome: domesArray ) {
-                    DateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String date = dFormat.format(dome.RemoveDate);
-                    String thisDate = date.toString();
                     if (allDomes != "") allDomes += ";";
-                    allDomes += (dome.Index + "," + dome.Dome.getCenter().latitude + "," + dome.Dome.getCenter().longitude + "," + thisDate);
+                    allDomes += (dome.Index + "," + dome.Dome.getCenter().latitude + "," + dome.Dome.getCenter().longitude);
                 }
         editor.putString("allDomes", allDomes);
         editor.commit();
@@ -191,18 +187,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 if (splitDome.contains(",")) {
                 String[] splitLine = splitDome.split(",");
                     LatLng dl = (new LatLng(Double.parseDouble(splitLine[1]), Double.parseDouble(splitLine[2])));
-                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = null;
-                    try {
-                        date = format.parse(splitLine[3]);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
 
                     DomeCircle circle = new DomeCircle();
                         circle.Index = Integer.parseInt(splitLine[0]);
 
-                        circle.RemoveDate = date;
                         circle.Dome = mMap.addCircle(new CircleOptions()
                                 .center(dl)
                                 .radius(250)
@@ -268,24 +256,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
     }
 
-    public Date AddDateTime(){
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, 1);
-        date = c.getTime();
-        return date;
-    }
-
-    Timer expiryTimer;
-    private void checkDomesExpired(){
-        expiryTimer = new Timer();
-
-        for (DomeCircle dome:domesArray) {
-            expiryTimer.schedule();
-        }
-    }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -296,7 +266,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         loadLocations();
         loadCollectibles();
-        checkDomesExpired();
 
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -311,7 +280,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                             .fillColor(Color.argb(50, 127, 0, 255)));
 
                     tempCircle.Index = 0;
-                    tempCircle.RemoveDate = AddDateTime();
 
                 domesArray.add(tempCircle);
                     if(domesArray.size() > 9){
