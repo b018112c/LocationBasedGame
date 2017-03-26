@@ -93,8 +93,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public TextView textT2Count;
     public TextView textT3Count;
 
-    private ArrayList<Circle> domesArray = new ArrayList<>();
-    private ArrayList<Circle> unconnectedList = new ArrayList<>();
+    private ArrayList<Circle> connectedDomesList = new ArrayList<>();
+    private ArrayList<Circle> unconnectedDomesList = new ArrayList<>();
     private ArrayList<Polygon> connectedArray = new ArrayList<>();
 
     private static final String PrefsFile = "PrefsFile";
@@ -183,33 +183,64 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        String allDomes = "";
-                for (Circle dome: domesArray ) {
-                    if (allDomes != "") allDomes += ";";
-                    allDomes += (dome.getCenter().latitude + "," + dome.getCenter().longitude);
+        String allConnectedDomes = "";
+                for (Circle dome: connectedDomesList ) {
+                    if (allConnectedDomes != "") allConnectedDomes += ";";
+                    allConnectedDomes += (dome.getCenter().latitude + "," + dome.getCenter().longitude);
                 }
-        editor.putString("allDomes", allDomes);
+        editor.putString("allConnectedDomes", allConnectedDomes);
+        String allUnconnectedDomes = "";
+        for (Circle dome: unconnectedDomesList ) {
+            if (allUnconnectedDomes != "") allUnconnectedDomes += ";";
+            allUnconnectedDomes += (dome.getCenter().latitude + "," + dome.getCenter().longitude);
+        }
+        editor.putString("allUnconnectedDomes", allUnconnectedDomes);
         editor.commit();
     }
 
     private void loadLocations() {
 
-        String allDomes = _Pref.getString("allDomes", "");
-        String[] splitDomes = allDomes.split(";");
-            for(String splitDome :splitDomes) {
+        String allConnectedDomes = _Pref.getString("allConnectedDomes", "");
+        String[] splitConnectedDomes = allConnectedDomes.split(";");
+            for(String splitDome :splitConnectedDomes) {
                 if (splitDome.contains(",")) {
                 String[] splitLine = splitDome.split(",");
-                    LatLng dl = (new LatLng(Double.parseDouble(splitLine[1]), Double.parseDouble(splitLine[2])));
+                    LatLng dl = (new LatLng(Double.parseDouble(splitLine[0]), Double.parseDouble(splitLine[1])));
 
                     Circle circle = mMap.addCircle(new CircleOptions()
                                 .center(dl)
                                 .radius(250)
                                 .strokeColor(Color.argb(90, 127, 0, 255))
                                 .fillColor(Color.argb(50, 127, 0, 255)));
-                        domesArray.add(circle);
+                    connectedDomesList.add(circle);
                     }
                 }
+        String allUnconnectedDomes = _Pref.getString("allUnconnectedDomes", "");
+        String[] splitUnconnectedDomes = allUnconnectedDomes.split(";");
+        for(String splitDome :splitUnconnectedDomes) {
+            if (splitDome.contains(",")) {
+                String[] splitLine = splitDome.split(",");
+                LatLng dl = (new LatLng(Double.parseDouble(splitLine[0]), Double.parseDouble(splitLine[1])));
+
+                Circle circle = mMap.addCircle(new CircleOptions()
+                        .center(dl)
+                        .radius(250)
+                        .strokeColor(Color.argb(90, 127, 0, 255))
+                        .fillColor(Color.argb(50, 127, 0, 255)));
+                unconnectedDomesList.add(circle);
             }
+        }
+
+        for(int i = 0; i < connectedDomesList.size(); i+=3){
+            ArrayList<LatLng> polygons = new ArrayList<>();
+            polygons.add(connectedDomesList.get(i).getCenter());
+            polygons.add(connectedDomesList.get(i+1).getCenter());
+            polygons.add(connectedDomesList.get(i+2).getCenter());
+            connectedArray.add( mMap.addPolygon(new PolygonOptions() //add polygon
+                    .addAll(polygons)
+                    .strokeColor(Color.CYAN)));
+        }
+    }
 
     private void saveCollectibles(){
 
@@ -290,17 +321,17 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
         mMap.setMaxZoomPreference(17);
         mMap.setMinZoomPreference(14);
-        mMap.setPadding(0,140,0,0);
+        mMap.setPadding(0,140,0,0); //set map camera
 
         loadLocations();
-        loadCollectibles();
-        if(_Pref.getBoolean("dropUsed",false)){
+        loadCollectibles(); //load map elements
+        if(_Pref.getBoolean("dropUsed",false)){ //if drop hasn't been used
             Calendar c = Calendar.getInstance();
             long currentTime = c.getTimeInMillis();
             long dropEnd = _Pref.getLong("dropStart",0) + 900000;
-            long msTime = dropEnd - currentTime;
+            long msTime = dropEnd - currentTime; //find time left till drop expires
             if(msTime > 1){
-        AddDropTime(msTime);
+        AddDropTime(msTime); //create the drop countdown timer
             String[] splitLoc = _Pref.getString("dropLocation","0,0").split(",");
             LatLng dl = (new LatLng(Double.parseDouble(splitLoc[0]), Double.parseDouble(splitLoc[1])));
             mDrop = mMap.addMarker(new MarkerOptions()
@@ -308,15 +339,14 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
                     .title("Airdrop"));
             mDrop.showInfoWindow();
-            btnDrop.setVisibility(View.INVISIBLE);
+            btnDrop.setVisibility(View.INVISIBLE); //add drop marker top map, hide drop button
             }
         }
 
-        btnPylon.setOnClickListener(new View.OnClickListener() {
+        btnPylon.setOnClickListener(new View.OnClickListener() { //create pylon placement button listener
             public void onClick(View v) {
-                if(_Pref.getInt("pylonCount", 3) > 0){
+                if(_Pref.getInt("pylonCount", 3) > 0){ //if player has remaining pylons
                 LatLng circleLocation = myCurrentPosition;
-
 
                     Circle tempCircle = mMap.addCircle(new CircleOptions()
                             .center(circleLocation)
@@ -324,15 +354,15 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                             .strokeColor(Color.argb(90, 127, 0, 255))
                             .fillColor(Color.argb(50, 127, 0, 255)));
 
-                    domesArray.add(tempCircle);
-                    if(connectedArray.size()==3){
-                        connectedArray.remove(0);
-                        domesArray.get(2).remove();domesArray.get(1).remove();domesArray.get(0).remove();
-                        domesArray.remove(2);domesArray.remove(1);domesArray.remove(0);}
+                    //connectedDomesList.add(tempCircle);
+                    if(connectedArray.size()==2){ //check if number of polygons is 3, otherwise remove 2 oldest markers and connecting triangle
+                        connectedArray.get(0).remove(); connectedArray.remove(0);
+                        connectedDomesList.get(2).remove();connectedDomesList.get(1).remove();connectedDomesList.get(0).remove();
+                        connectedDomesList.remove(2);connectedDomesList.remove(1);connectedDomesList.remove(0);}
+
+                    unconnectedDomesList.add(tempCircle);
 
                 txtPylonCount.setText(Integer.toString(AddPylon(-1)));
-
-                unconnectedList.add(tempCircle);
 
                 Random random = new Random();
                 //randomly add animal markers
@@ -352,16 +382,16 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
                 }
 
-                if(unconnectedList.size() == 3){
+                if(unconnectedDomesList.size() == 3){ //if 3 unconnected domes are present
                     ArrayList<LatLng> unconnectedLocations = new ArrayList<>();
-                    for (Circle circle:unconnectedList){
+                    for (Circle circle:unconnectedDomesList){
                         unconnectedLocations.add(circle.getCenter());
                     }
-                    connectedArray.add( mMap.addPolygon(new PolygonOptions()
+                    connectedArray.add( mMap.addPolygon(new PolygonOptions() //add polygon
                             .addAll(unconnectedLocations)
                             .strokeColor(Color.CYAN)));
 
-                    for (Circle marker : unconnectedList)
+                    for (Circle marker : unconnectedDomesList)
                     {
                         int tier2quantity2 = random.nextInt(4) + 2;
                         for(int i = 0; i < tier2quantity2; i++){
@@ -378,14 +408,13 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
                         }
 
-                        domesArray.add(marker);
+                        connectedDomesList.add(marker); //add unconnected to connected in a 3
                     }
-
-                    unconnectedList.clear();
+                    unconnectedDomesList.clear();//reset unconnected
                 }
 
                 saveCollectibles();
-                saveLocations();
+                saveLocations(); //store changes
                 }
             }
         });
