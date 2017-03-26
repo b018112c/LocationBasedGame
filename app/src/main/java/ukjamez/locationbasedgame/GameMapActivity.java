@@ -57,6 +57,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Timer;
 
 class DomeCircle {
     public int Index;
@@ -276,6 +277,15 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         return date;
     }
 
+    Timer expiryTimer;
+    private void checkDomesExpired(){
+        expiryTimer = new Timer();
+
+        for (DomeCircle dome:domesArray) {
+            expiryTimer.schedule();
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -286,6 +296,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         loadLocations();
         loadCollectibles();
+        checkDomesExpired();
 
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -355,6 +366,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     }
                     connectedList.clear();
                 }
+
                 saveCollectibles();
                 saveLocations();
                 }
