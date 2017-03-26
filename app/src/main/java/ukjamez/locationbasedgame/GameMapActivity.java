@@ -43,29 +43,25 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 class DomeCircle {
     public int Index;
     public Circle Dome;
-    public String RemoveDate;
-}
-
-//class DomeConnected {
-//    public ArrayList<LatLng> Domes;
-//    public String RemoveDate;
-//
-//}
-
-class Collectible {
-    public Location Location;
-    public int Tier;
+    public Date RemoveDate;
 }
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -95,16 +91,15 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public TextView textT2Count;
     public TextView textT3Count;
 
-    private DomeCircle[] domesArray = new DomeCircle[9];
-
-    private ArrayList<Collectible> collectibles = new ArrayList<>();
-
-    private ArrayList<LatLng> pylonsList = new ArrayList<>();
+    private ArrayList<DomeCircle> domesArray = new ArrayList<>();
+    private ArrayList<LatLng> connectedList = new ArrayList<>();
     private int noOfPylons = 0;
+
     private static final String PrefsFile = "PrefsFile";
-    private ArrayList<LatLng> tier1List = new ArrayList<>();
-    private ArrayList<LatLng> tier2List = new ArrayList<>();
-    private ArrayList<LatLng> tier3List = new ArrayList<>();
+
+    private ArrayList<Marker> tier1List = new ArrayList<>();
+    private ArrayList<Marker> tier2List = new ArrayList<>();
+    private ArrayList<Marker> tier3List = new ArrayList<>();
 
     private Boolean CameraSet = false;
 
@@ -169,55 +164,116 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        loadLocations();
     }
 
     private void saveLocations(){
-        File file = new File("locations.csv");
-        if(file.exists()){
-            try {
-                FileWriter fileWriter  = new FileWriter(file);
-                BufferedWriter bfWriter = new BufferedWriter(fileWriter);
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        String allDomes = "";
                 for (DomeCircle dome: domesArray ) {
-                    bfWriter.write(dome.Index + dome.Dome.getCenter().latitude + "," + dome.Dome.getCenter().latitude + "," + dome.RemoveDate);
+                    DateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String date = dFormat.format(dome.RemoveDate);
+                    String thisDate = date.toString();
+                    if (allDomes != "") allDomes += ";";
+                    allDomes += (dome.Index + "," + dome.Dome.getCenter().latitude + "," + dome.Dome.getCenter().longitude + "," + thisDate);
                 }
-                bfWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        editor.putString("allDomes", allDomes);
+        editor.commit();
     }
 
-    private void loadLocations(){
-        try {
-            InputStreamReader iReader = new InputStreamReader(getResources().openRawResource(R.raw.locations));
-            BufferedReader br= new BufferedReader(iReader);
-            String line = "";
-            for(int l = 0; l < 11; l++)
-            {
-                line = br.readLine();
-                if(line.contains(",")){
-                    String[] splitLine = line.split(",");
+    private void loadLocations() {
 
-                LatLng dl =(new LatLng(Double.parseDouble(splitLine[0]), Double.parseDouble(splitLine[1])));
-                    if(splitLine[2] == "PAST DATE"){
-                        domesArray[l].RemoveDate = splitLine[2];
-                        domesArray[l].Dome = mMap.addCircle(new CircleOptions()
+        String allDomes = _Pref.getString("allDomes", "");
+        String[] splitDomes = allDomes.split(";");
+            for(String splitDome :splitDomes) {
+                if (splitDome.contains(",")) {
+                String[] splitLine = splitDome.split(",");
+                    LatLng dl = (new LatLng(Double.parseDouble(splitLine[1]), Double.parseDouble(splitLine[2])));
+                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = null;
+                    try {
+                        date = format.parse(splitLine[3]);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    DomeCircle circle = new DomeCircle();
+                        circle.Index = Integer.parseInt(splitLine[0]);
+
+                        circle.RemoveDate = date;
+                        circle.Dome = mMap.addCircle(new CircleOptions()
                                 .center(dl)
                                 .radius(250)
-                                .strokeColor(Color.argb(90,127,0,255))
-                                .fillColor(Color.argb(50,127,0,255)));
+                                .strokeColor(Color.argb(90, 127, 0, 255))
+                                .fillColor(Color.argb(50, 127, 0, 255)));
+                        domesArray.add(circle);
                     }
                 }
             }
 
-            //calculate triangle connected polylines
+    private void saveCollectibles(){
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        String[] allTiers = new String[3];
+        allTiers[0] = "";allTiers[1] = "";allTiers[2] = "";
+        for (Marker tier: tier1List ) {
+            if (allTiers[0] != "") allTiers[0] += ";";
+            allTiers[0] += (tier.getPosition().latitude + "," + tier.getPosition().longitude );
         }
+        for (Marker tier: tier2List ) {
+            if (allTiers[1] != "") allTiers[1] += ";";
+            allTiers[1] += (tier.getPosition().latitude + "," + tier.getPosition().longitude );
+        }
+        for (Marker tier: tier3List ) {
+            if (allTiers[2] != "") allTiers[2] += ";";
+            allTiers[2] += (tier.getPosition().latitude + "," + tier.getPosition().longitude );
+        }
+        editor.putString("allTier1", allTiers[0]);
+        editor.putString("allTier2", allTiers[1]);
+        editor.putString("allTier3", allTiers[2]);
+        editor.commit();
+    }
+
+    private void loadCollectibles(){
+        String[] allTiers = new String[3];
+        allTiers[0] = _Pref.getString("allTier1","");
+        allTiers[1] = _Pref.getString("allTier2","");
+        allTiers[2] = _Pref.getString("allTier3","");
+        for(int i = 0; i <= 2; i++){
+        String[] splitToLocation = allTiers[i].split(";");
+        for(String splitToLatLng :splitToLocation) {
+            if (splitToLatLng.contains(",")) {
+                String[] splitLine = splitToLatLng.split(",");
+                LatLng cl = (new LatLng(Double.parseDouble(splitLine[0]), Double.parseDouble(splitLine[1])));
+                if(i == 0){
+                    tier1List.add(mMap.addMarker(new MarkerOptions()
+                            .position(cl).snippet("T1")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+                }
+                else if(i == 1){
+                    tier2List.add(mMap.addMarker(new MarkerOptions()
+                            .position(cl).snippet("T2")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
+                }
+                else if(i == 2) {
+                    tier3List.add(mMap.addMarker(new MarkerOptions()
+                            .position(cl).snippet("T3")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
+                }
+            }
+        }
+        }
+    }
+
+    public Date AddDateTime(){
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, 1);
+        date = c.getTime();
+        return date;
     }
 
     @Override
@@ -228,62 +284,79 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setMinZoomPreference(14);
         mMap.setPadding(0,140,0,0);
 
-
+        loadLocations();
+        loadCollectibles();
 
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mMap.addCircle(new CircleOptions()
-                        .center(myCurrentPosition)
-                        .radius(250)
-                        .strokeColor(Color.argb(90,127,0,255))
-                        .fillColor(Color.argb(50,127,0,255)));
+                if(_Pref.getInt("pylonCount", 3) > 0){
+                DomeCircle tempCircle = new DomeCircle();
+                LatLng circleLocation = myCurrentPosition;
+
+                    tempCircle.Dome = mMap.addCircle(new CircleOptions()
+                            .center(circleLocation)
+                            .radius(250)
+                            .strokeColor(Color.argb(90, 127, 0, 255))
+                            .fillColor(Color.argb(50, 127, 0, 255)));
+
+                    tempCircle.Index = 0;
+                    tempCircle.RemoveDate = AddDateTime();
+
+                domesArray.add(tempCircle);
+                    if(domesArray.size() > 9){
+                        domesArray.get(0).Dome.remove();
+                        domesArray.remove(0);
+                    }
+
                 txtPylonCount.setText(Integer.toString(AddPylon(-1)));
+
                 noOfPylons += 1;
-                pylonsList.add(myCurrentPosition);
+                connectedList.add(circleLocation);
 
                 Random random = new Random();
                 //randomly add animal markers
                 int tier1quantity = random.nextInt(3) + 2;
                 for(int i = 0; i < tier1quantity; i++){
-                    LatLng location = placeRandomMarker(215, Math.random(),myCurrentPosition);//store this
-                    mMap.addMarker(new MarkerOptions()
+                    LatLng location = placeRandomMarker(215, Math.random(),circleLocation);//store this
+                    tier1List.add(mMap.addMarker(new MarkerOptions()
                             .position(location).snippet("T1")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
                 }
 
-                int tier2quantity = random.nextInt(3) + 0;
+                int tier2quantity = random.nextInt(2) + 0;
                 for(int i = 0; i < tier2quantity; i++){
-                    LatLng location = placeRandomMarker(215, Math.random(),myCurrentPosition);//store this
-                    mMap.addMarker(new MarkerOptions()
+                    LatLng location = placeRandomMarker(215, Math.random(),circleLocation);//store this
+                    tier2List.add(mMap.addMarker(new MarkerOptions()
                             .position(location).snippet("T2")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
                 }
 
                 if(noOfPylons == 3){
                     mMap.addPolygon(new PolygonOptions()
-                            .addAll(pylonsList)
+                            .addAll(connectedList)
                             .strokeColor(Color.CYAN));
                     noOfPylons = 0;
-                    for (LatLng marker : pylonsList)
+                    for (LatLng marker : connectedList)
                     {
                         int tier2quantity2 = random.nextInt(4) + 2;
                         for(int i = 0; i < tier2quantity2; i++){
                             LatLng location = placeRandomMarker(215, Math.random(),marker);//store this
-                            mMap.addMarker(new MarkerOptions()
+                            tier2List.add(mMap.addMarker(new MarkerOptions()
                                     .position(location).snippet("T2")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
                         }
                         int tier3quantity2 = random.nextInt(3) + 0;
                         for(int i = 0; i < tier3quantity2; i++){
                             LatLng location = placeRandomMarker(215, Math.random(),marker);//store this
-                            mMap.addMarker(new MarkerOptions()
+                            tier3List.add(mMap.addMarker(new MarkerOptions()
                                     .position(location).snippet("T3")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
                         }
                     }
-                    //connectedList.add(pylonsList);
-
-                    pylonsList.clear();
+                    connectedList.clear();
+                }
+                saveCollectibles();
+                saveLocations();
                 }
             }
         });
@@ -296,20 +369,23 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     mDrop.remove();
                     txtPylonCount.setText(String.format("%d",AddPylon(2)));
                     return true;
-                }else if(marker.getSnippet().equals("T1")){
-                    marker.remove();
+                }else if(marker.getSnippet().equals("T1")){ //probably don't need the snippets
+                    tier1List.remove(marker);marker.remove();
                     t1Count+=1;
                     textT1Count.setText(String.format("%d",t1Count));
+                    saveCollectibles();
                     return true;
                 }else if(marker.getSnippet().equals("T2")){
-                    marker.remove();
+                    tier2List.remove(marker);marker.remove();
                     t2Count+=1;
                     textT2Count.setText(String.format("%d",t2Count));
+                    saveCollectibles();
                     return true;
                 }else if(marker.getSnippet().equals("T3")){
-                    marker.remove();
+                    tier3List.remove(marker);marker.remove();
                     t3Count+=1;
                     textT3Count.setText(String.format("%d",t3Count));
+                    saveCollectibles();
                     return true;
                 }
                 return false;
@@ -370,9 +446,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     @Override
     public void onResume() {
         super.onResume();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//        mapFragment.getMapAsync(this);
         //if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
         //LocationUpdatesBegin();
         //}
@@ -449,6 +525,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.getUiSettings().setTiltGesturesEnabled(false);
 
         mMap.setLocationSource(this);
+
     }
 
     @Override
