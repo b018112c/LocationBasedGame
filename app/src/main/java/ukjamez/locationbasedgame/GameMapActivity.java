@@ -36,7 +36,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -91,9 +93,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     public TextView textT2Count;
     public TextView textT3Count;
 
-    private ArrayList<DomeCircle> domesArray = new ArrayList<>();
-    private ArrayList<LatLng> connectedList = new ArrayList<>();
-    private int noOfPylons = 0;
+    private ArrayList<Circle> domesArray = new ArrayList<>();
+    private ArrayList<Circle> unconnectedList = new ArrayList<>();
+    private ArrayList<Polygon> connectedArray = new ArrayList<>();
 
     private static final String PrefsFile = "PrefsFile";
 
@@ -182,9 +184,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         String allDomes = "";
-                for (DomeCircle dome: domesArray ) {
+                for (Circle dome: domesArray ) {
                     if (allDomes != "") allDomes += ";";
-                    allDomes += (dome.Index + "," + dome.Dome.getCenter().latitude + "," + dome.Dome.getCenter().longitude);
+                    allDomes += (dome.getCenter().latitude + "," + dome.getCenter().longitude);
                 }
         editor.putString("allDomes", allDomes);
         editor.commit();
@@ -199,10 +201,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 String[] splitLine = splitDome.split(",");
                     LatLng dl = (new LatLng(Double.parseDouble(splitLine[1]), Double.parseDouble(splitLine[2])));
 
-                    DomeCircle circle = new DomeCircle();
-                        circle.Index = Integer.parseInt(splitLine[0]);
-
-                        circle.Dome = mMap.addCircle(new CircleOptions()
+                    Circle circle = mMap.addCircle(new CircleOptions()
                                 .center(dl)
                                 .radius(250)
                                 .strokeColor(Color.argb(90, 127, 0, 255))
@@ -316,27 +315,24 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(_Pref.getInt("pylonCount", 3) > 0){
-                DomeCircle tempCircle = new DomeCircle();
                 LatLng circleLocation = myCurrentPosition;
 
-                    tempCircle.Dome = mMap.addCircle(new CircleOptions()
+
+                    Circle tempCircle = mMap.addCircle(new CircleOptions()
                             .center(circleLocation)
                             .radius(250)
                             .strokeColor(Color.argb(90, 127, 0, 255))
                             .fillColor(Color.argb(50, 127, 0, 255)));
 
-                    tempCircle.Index = 0;
-
-                domesArray.add(tempCircle);
-                    if(domesArray.size() > 9){
-                        domesArray.get(0).Dome.remove();
-                        domesArray.remove(0);
-                    }
+                    domesArray.add(tempCircle);
+                    if(connectedArray.size()==3){
+                        connectedArray.remove(0);
+                        domesArray.get(2).remove();domesArray.get(1).remove();domesArray.get(0).remove();
+                        domesArray.remove(2);domesArray.remove(1);domesArray.remove(0);}
 
                 txtPylonCount.setText(Integer.toString(AddPylon(-1)));
 
-                noOfPylons += 1;
-                connectedList.add(circleLocation);
+                unconnectedList.add(tempCircle);
 
                 Random random = new Random();
                 //randomly add animal markers
@@ -356,29 +352,36 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
                 }
 
-                if(noOfPylons == 3){
-                    mMap.addPolygon(new PolygonOptions()
-                            .addAll(connectedList)
-                            .strokeColor(Color.CYAN));
-                    noOfPylons = 0;
-                    for (LatLng marker : connectedList)
+                if(unconnectedList.size() == 3){
+                    ArrayList<LatLng> unconnectedLocations = new ArrayList<>();
+                    for (Circle circle:unconnectedList){
+                        unconnectedLocations.add(circle.getCenter());
+                    }
+                    connectedArray.add( mMap.addPolygon(new PolygonOptions()
+                            .addAll(unconnectedLocations)
+                            .strokeColor(Color.CYAN)));
+
+                    for (Circle marker : unconnectedList)
                     {
                         int tier2quantity2 = random.nextInt(4) + 2;
                         for(int i = 0; i < tier2quantity2; i++){
-                            LatLng location = placeRandomMarker(215, Math.random(),marker);//store this
+                            LatLng location = placeRandomMarker(215, Math.random(),marker.getCenter());//store this
                             tier2List.add(mMap.addMarker(new MarkerOptions()
                                     .position(location).snippet("T2")
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
                         }
                         int tier3quantity2 = random.nextInt(3) + 0;
                         for(int i = 0; i < tier3quantity2; i++){
-                            LatLng location = placeRandomMarker(215, Math.random(),marker);//store this
+                            LatLng location = placeRandomMarker(215, Math.random(),marker.getCenter());//store this
                             tier3List.add(mMap.addMarker(new MarkerOptions()
                                     .position(location).snippet("T3")
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
                         }
+
+                        domesArray.add(marker);
                     }
-                    connectedList.clear();
+
+                    unconnectedList.clear();
                 }
 
                 saveCollectibles();
