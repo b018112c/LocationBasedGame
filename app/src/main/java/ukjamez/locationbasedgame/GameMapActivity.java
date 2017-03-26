@@ -266,6 +266,24 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
         }
     }
+    private CountDownTimer dropTimer;
+    public void AddDropTime(long newTimer){
+         dropTimer = new CountDownTimer(newTimer, 1000) {
+            public void onTick(long millisUntilFinished) {
+
+                int seconds = (int) (millisUntilFinished / 1000) % 60 ;
+                int minutes = (int) ((millisUntilFinished / (1000*60)) % 60);
+                mDrop.setTitle(String.valueOf(minutes +":" + String.format("%02d",seconds)));
+                mDrop.showInfoWindow();
+            }
+
+            public void onFinish() {
+                OnDropRemoved();
+            }
+
+        }.start();
+
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -277,6 +295,23 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         loadLocations();
         loadCollectibles();
+        if(_Pref.getBoolean("dropUsed",false)){
+            Calendar c = Calendar.getInstance();
+            long currentTime = c.getTimeInMillis();
+            long dropEnd = _Pref.getLong("dropStart",0) + 900000;
+            long msTime = dropEnd - currentTime;
+            if(msTime > 1){
+        AddDropTime(msTime);
+            String[] splitLoc = _Pref.getString("dropLocation","0,0").split(",");
+            LatLng dl = (new LatLng(Double.parseDouble(splitLoc[0]), Double.parseDouble(splitLoc[1])));
+            mDrop = mMap.addMarker(new MarkerOptions()
+                    .position(dl)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                    .title("Airdrop"));
+            mDrop.showInfoWindow();
+            btnDrop.setVisibility(View.INVISIBLE);
+            }
+        }
 
         btnPylon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -357,7 +392,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if(mDrop != null && marker.equals(mDrop)){
-                    mDrop.remove();
+                    OnDropRemoved();
+                    dropTimer.cancel();
                     txtPylonCount.setText(String.format("%d",AddPylon(2)));
                     return true;
                 }else if(marker.getSnippet().equals("T1") && otherItems>0){ //probably don't need the snippets
@@ -400,36 +436,37 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnDrop.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!mDropUsed) {
-                    new CountDownTimer(900000, 1000) {
-
-                        public void onTick(long millisUntilFinished) {
-
-                            int seconds = (int) (millisUntilFinished / 1000) % 60 ;
-                            int minutes = (int) ((millisUntilFinished / (1000*60)) % 60);
-                            mDrop.setTitle(String.valueOf(minutes +":" + String.format("%02d",seconds)));
-                            mDrop.showInfoWindow();
-                        }
-
-                        public void onFinish() {
-                            mDrop.remove();
-                        }
-
-                    }.start();
+                if (!_Pref.getBoolean("dropUsed",false)) {
+                    Calendar c = Calendar.getInstance();
+                    long currentTime = c.getTimeInMillis();
+                    SharedPreferences.Editor editor = _Pref.edit();
+                    editor.putLong("dropStart", currentTime);
+                    editor.commit();
+                    AddDropTime(900000);
                     mDrop = mMap.addMarker(new MarkerOptions()
                             .position(placeRandomMarker(500, 1,myCurrentPosition))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
                             .title("Airdrop"));
                     mDrop.showInfoWindow();
-                    mDropUsed = true;
                     btnDrop.setVisibility(View.INVISIBLE);
-
-
+                    editor.putString("dropLocation", mDrop.getPosition().latitude+","+mDrop.getPosition().longitude);
+                    editor.putBoolean("dropUsed", true);
+                    editor.commit();
                 }
             }
         });
         //if (myCurrentPosition != null) {}
     }
+
+    private void OnDropRemoved(){
+        mDrop.remove();
+        btnDrop.setVisibility(View.VISIBLE);
+        SharedPreferences.Editor editor = _Pref.edit();
+        editor.putBoolean("dropUsed", false);
+        //editor.putLong("dropTime", 900000);
+        editor.commit();
+    }
+
 
     protected void onStart() {
         mGoogleApiClient.connect();
