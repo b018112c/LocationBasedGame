@@ -85,7 +85,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private TextView txtPylonCount;
     public TextView textWalk;
     public TextView textRun;
-    public TextView textActivity;
     public ProgressBar progressWalk;
     public ProgressBar progressRun;
     public ProgressBar progressBoth;
@@ -129,7 +128,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         btnDrop = (Button) findViewById(R.id.buttonD);
         textWalk = (TextView) findViewById(R.id.textWalk);
         textRun = (TextView) findViewById(R.id.textRun);
-        textActivity = (TextView) findViewById(R.id.textActivity);
         progressWalk = (ProgressBar) findViewById(R.id.progressWalk);
         progressRun = (ProgressBar) findViewById(R.id.progressRun);
         progressBoth = (ProgressBar) findViewById(R.id.progressBoth);
@@ -682,7 +680,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     progressRun.setProgress((int)runDistance);
                     //progressBoth.setProgress((int)walkDistance + (int)runDistance);
                 }
-                textActivity.setText(test);
+                //textActivity.setText(test);
             }
             SharedPreferences.Editor editor = _Pref.edit();
             editor.putFloat("walkDistance", walkDistance);

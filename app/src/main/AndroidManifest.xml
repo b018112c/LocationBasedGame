@@ -33,7 +33,9 @@
 
         <activity
             android:name=".GameMapActivity"
-            android:label="@string/title_activity_game_map">
+            android:label="@string/title_activity_game_map"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

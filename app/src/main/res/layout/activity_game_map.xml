@@ -86,15 +86,6 @@
         android:layout_marginTop="41dp"
         style="?android:attr/progressBarStyleHorizontal"
         android:max="500" />
-    <TextView
-        android:id="@+id/textActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="test"
-        android:layout_marginTop="38dp"
-        android:layout_marginEnd="7dp"
-        />
 
     <TextView
         android:id="@+id/textT1"
