@@ -1,0 +1,131 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ukjamez.locationbasedgame.GameUI">
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_dome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="66dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@mipmap/ic_airplanemode_active_white_18dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_drop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="16dp"
+        android:src="@mipmap/ic_flash_on_white_18dp" />
+
+    <!--<Button-->
+        <!--android:id="@+id/buttonD"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|bottom"-->
+        <!--android:layout_marginBottom="52dp"-->
+        <!--android:layout_marginEnd="7dp"-->
+        <!--android:padding="12dp"-->
+        <!--android:text="Call Airdrop" />-->
+
+    <!--<Button-->
+        <!--android:id="@+id/buttonP"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|bottom"-->
+        <!--android:layout_marginBottom="7dp"-->
+        <!--android:layout_marginEnd="7dp"-->
+        <!--android:padding="12dp"-->
+        <!--android:text="Place Pylon" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textP"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|bottom"-->
+        <!--android:layout_marginBottom="9dp"-->
+        <!--android:layout_marginEnd="120dp"-->
+        <!--android:padding="12dp"-->
+        <!--android:text="N/A" />-->
+
+    <!--<ProgressBar-->
+        <!--android:id="@+id/progressRun"-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="5dp"-->
+        <!--android:layout_gravity="left|top"-->
+        <!--android:layout_marginTop="3dp"-->
+        <!--android:max="500" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textRun"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginEnd="7dp"-->
+        <!--android:layout_marginTop="0dp"-->
+        <!--android:text="0" />-->
+
+    <!--<ProgressBar-->
+        <!--android:id="@+id/progressWalk"-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="5dp"-->
+        <!--android:layout_gravity="left|top"-->
+        <!--android:layout_marginTop="22dp"-->
+        <!--android:max="500" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textWalk"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginEnd="7dp"-->
+        <!--android:layout_marginTop="19dp"-->
+        <!--android:text="0" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textT1"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginEnd="50dp"-->
+        <!--android:layout_marginTop="65dp"-->
+        <!--android:text="0" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textT2"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginEnd="30dp"-->
+        <!--android:layout_marginTop="65dp"-->
+        <!--android:text="0" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textT3"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginEnd="10dp"-->
+        <!--android:layout_marginTop="65dp"-->
+        <!--android:text="0" />-->
+
+    <!--<ProgressBar-->
+        <!--android:id="@+id/progressBoth"-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="left|top"-->
+        <!--android:layout_marginTop="41dp"-->
+        <!--android:max="500" />-->
+</FrameLayout>

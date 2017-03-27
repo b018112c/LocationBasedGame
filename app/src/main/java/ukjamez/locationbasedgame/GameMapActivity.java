@@ -8,7 +8,9 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -61,10 +63,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 
-class DomeCircle {
-    public int Index;
-    public Circle Dome;
-}
+
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, LocationSource, OnMapReadyCallback {
@@ -80,8 +79,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private LatLng myLastPosition;
 
     private Marker mDrop;
-    private Button btnPylon;
-    private Button btnDrop;
+    private FloatingActionButton btnPylon;
+    private FloatingActionButton btnDrop;
     private TextView txtPylonCount;
     public TextView textWalk;
     public TextView textRun;
@@ -123,9 +122,9 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_map);
 
-        btnPylon = (Button) findViewById(R.id.buttonP);
+        btnPylon = (FloatingActionButton) findViewById(R.id.buttonP);
         txtPylonCount = (TextView) findViewById(R.id.textP);
-        btnDrop = (Button) findViewById(R.id.buttonD);
+        btnDrop = (FloatingActionButton) findViewById(R.id.buttonD);
         textWalk = (TextView) findViewById(R.id.textWalk);
         textRun = (TextView) findViewById(R.id.textRun);
         progressWalk = (ProgressBar) findViewById(R.id.progressWalk);

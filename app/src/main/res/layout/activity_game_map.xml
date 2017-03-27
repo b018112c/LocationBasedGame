@@ -2,119 +2,118 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:screenOrientation="portrait"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="ukjamez.locationbasedgame.GameMapActivity"
-    tools:layout="@layout/activity_game_map">
-    <Button
-        android:id="@+id/buttonD"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
-        android:text="Call Airdrop"
-        android:padding="12dp"
-        android:layout_marginBottom="52dp"
-        android:layout_marginEnd="7dp"/>
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:screenOrientation="portrait"
+        tools:context="ukjamez.locationbasedgame.GameMapActivity"
+        tools:layout="@layout/activity_game_map">
 
-    <Button
-    android:id="@+id/buttonP"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|bottom"
-    android:text="Place Pylon"
-    android:padding="12dp"
-    android:layout_marginBottom="7dp"
-    android:layout_marginEnd="7dp"/>
-<TextView
-    android:id="@+id/textP"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|bottom"
-    android:text="N/A"
-    android:padding="12dp"
-    android:layout_marginBottom="9dp"
-    android:layout_marginEnd="120dp"
-    />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/buttonD"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="86dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@mipmap/ic_airplanemode_active_white_18dp" />
 
-    <ProgressBar
-        android:id="@+id/progressRun"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:layout_marginTop="3dp"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:max="500" />
-    <TextView
-        android:id="@+id/textRun"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="0"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="7dp"
-        />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/buttonP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="16dp"
+            android:src="@mipmap/ic_flash_on_white_18dp" />
 
-    <ProgressBar
-        android:id="@+id/progressWalk"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:layout_marginTop="22dp"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:max="500" />
-    <TextView
-        android:id="@+id/textWalk"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="0"
-        android:layout_marginTop="19dp"
-        android:layout_marginEnd="7dp"
-        />
+        <TextView
+            android:id="@+id/textP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_marginBottom="9dp"
+            android:layout_marginEnd="120dp"
+            android:padding="12dp"
+            android:text="N/A" />
 
-    <ProgressBar
-        android:id="@+id/progressBoth"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:layout_marginTop="41dp"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:max="500" />
+        <ProgressBar
+            android:id="@+id/progressRun"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:layout_marginTop="3dp"
+            android:max="500" />
 
-    <TextView
-        android:id="@+id/textT1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="0"
-        android:layout_marginEnd="50dp"
-        android:layout_marginTop="65dp"
-        />
-    <TextView
-    android:id="@+id/textT2"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|top"
-    android:text="0"
-    android:layout_marginEnd="30dp"
-    android:layout_marginTop="65dp"
-    />
-    <TextView
-    android:id="@+id/textT3"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|top"
-    android:text="0"
-    android:layout_marginEnd="10dp"
-    android:layout_marginTop="65dp"
-    />
+        <TextView
+            android:id="@+id/textRun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:layout_marginEnd="7dp"
+            android:layout_marginTop="0dp"
+            android:text="0" />
 
-</fragment>
+        <ProgressBar
+            android:id="@+id/progressWalk"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:layout_marginTop="22dp"
+            android:max="500" />
+
+        <TextView
+            android:id="@+id/textWalk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:layout_marginEnd="7dp"
+            android:layout_marginTop="19dp"
+            android:text="0" />
+
+        <ProgressBar
+            android:id="@+id/progressBoth"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:layout_marginTop="41dp"
+            android:max="500" />
+
+        <TextView
+            android:id="@+id/textT1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:layout_marginEnd="50dp"
+            android:layout_marginTop="65dp"
+            android:text="0" />
+
+        <TextView
+            android:id="@+id/textT2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="65dp"
+            android:text="0" />
+
+        <TextView
+            android:id="@+id/textT3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="65dp"
+            android:text="0" />
+
+    </fragment>
 
 </FrameLayout>
