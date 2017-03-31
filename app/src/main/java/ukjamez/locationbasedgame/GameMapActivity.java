@@ -277,17 +277,17 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 if(i == 0){
                     tier1List.add(mMap.addMarker(new MarkerOptions()
                             .position(cl).snippet("T1")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.fox1))));
                 }
                 else if(i == 1){
                     tier2List.add(mMap.addMarker(new MarkerOptions()
                             .position(cl).snippet("T2")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.deer))));
                 }
                 else if(i == 2) {
                     tier3List.add(mMap.addMarker(new MarkerOptions()
                             .position(cl).snippet("T3")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.tier3))));
                 }
             }
         }
@@ -368,7 +368,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     LatLng location = placeRandomMarker(215, Math.random(),circleLocation);//store this
                     tier1List.add(mMap.addMarker(new MarkerOptions()
                             .position(location).snippet("T1")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.fox1))));
                 }
 
                 int tier2quantity = random.nextInt(2) + 0;
@@ -376,7 +376,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     LatLng location = placeRandomMarker(215, Math.random(),circleLocation);//store this
                     tier2List.add(mMap.addMarker(new MarkerOptions()
                             .position(location).snippet("T2")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.deer))));
                 }
 
                 if(unconnectedDomesList.size() == 3){ //if 3 unconnected domes are present
@@ -395,14 +395,14 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                             LatLng location = placeRandomMarker(215, Math.random(),marker.getCenter());//store this
                             tier2List.add(mMap.addMarker(new MarkerOptions()
                                     .position(location).snippet("T2")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.deer))));
                         }
                         int tier3quantity2 = random.nextInt(3) + 0;
                         for(int i = 0; i < tier3quantity2; i++){
                             LatLng location = placeRandomMarker(215, Math.random(),marker.getCenter());//store this
                             tier3List.add(mMap.addMarker(new MarkerOptions()
                                     .position(location).snippet("T3")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tier3))));
                         }
 
                         connectedDomesList.add(marker); //add unconnected to connected in a 3
