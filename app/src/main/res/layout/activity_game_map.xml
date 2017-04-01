@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|top"
             android:layout_marginTop="41dp"
-            android:max="500" />
+            android:max="2500" />
 
         <TextView
             android:id="@+id/textT1"
