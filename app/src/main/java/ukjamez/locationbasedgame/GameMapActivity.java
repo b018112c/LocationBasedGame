@@ -347,8 +347,18 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         btnPylon.setOnClickListener(new View.OnClickListener() { //create pylon placement button listener
             public void onClick(View v) {
-                if (_Pref.getInt("pylonCount", 3) > 0) { //if player has remaining pylons
-                    LatLng circleLocation = myCurrentPosition;
+                LatLng circleLocation = myCurrentPosition;
+                ArrayList<Circle> allCircles = new ArrayList<>(unconnectedDomesList);
+                allCircles.addAll(connectedDomesList);
+                boolean withinDome = false;
+                for (Circle withinCircle : allCircles) {
+                    float[] gap = new float[1];
+                    Location.distanceBetween(circleLocation.latitude, circleLocation.longitude, withinCircle.getCenter().latitude, withinCircle.getCenter().longitude, gap);
+                    if (gap[0] < withinCircle.getRadius()) {
+                        withinDome = true;
+                    }
+                }
+                if (_Pref.getInt("pylonCount", 3) > 0 && !withinDome) { //if player has remaining pylons
 
                     Circle tempCircle = mMap.addCircle(new CircleOptions()
                             .center(circleLocation)
