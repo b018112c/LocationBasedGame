@@ -314,7 +314,31 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             }
 
         }.start();
+    }
 
+    private float FindDistance(LatLng firstLoc, LatLng secondLoc){
+        float[] gap = new float[1];
+        Location.distanceBetween(firstLoc.latitude, firstLoc.longitude, secondLoc.latitude, secondLoc.longitude, gap);
+        return gap[0];
+    }
+
+    private ArrayList<Marker> CollectibleCheckInCircle(ArrayList<Marker> collectibleList){
+        ArrayList<Marker> keepList = new ArrayList<>(collectibleList);
+        for (Marker collectible: collectibleList) {
+            boolean keep = false;
+            for (Circle connectedDome: connectedDomesList) {
+                float gap = FindDistance(collectible.getPosition(),connectedDome.getCenter());
+                if(gap <= connectedDome.getRadius()){
+                    keep = true;
+                    break;//no need to keep checking
+                }
+            }
+            if(!keep){
+                collectible.remove();
+                keepList.remove(collectible);
+            }
+        }
+        return keepList;
     }
 
     @Override
@@ -352,9 +376,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 allCircles.addAll(connectedDomesList);
                 boolean withinDome = false;
                 for (Circle withinCircle : allCircles) {
-                    float[] gap = new float[1];
-                    Location.distanceBetween(circleLocation.latitude, circleLocation.longitude, withinCircle.getCenter().latitude, withinCircle.getCenter().longitude, gap);
-                    if (gap[0] < withinCircle.getRadius()) {
+                    float gap = FindDistance(circleLocation, withinCircle.getCenter());
+                    if (gap < withinCircle.getRadius()) {
                         withinDome = true;
                     }
                 }
@@ -376,6 +399,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         connectedDomesList.remove(2);
                         connectedDomesList.remove(1);
                         connectedDomesList.remove(0);
+                        //check all tier1/2/3 markers to see if each are within one of the
+                        tier1List = CollectibleCheckInCircle(tier1List);
+                        tier2List = CollectibleCheckInCircle(tier2List);
+                        tier3List = CollectibleCheckInCircle(tier3List);
                     }
 
                     unconnectedDomesList.add(tempCircle);
@@ -669,19 +696,18 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             }
 
             if (myLastPosition != null) {
-                float[] distance = new float[1];
-                Location.distanceBetween(myLastPosition.latitude, myLastPosition.longitude, myCurrentPosition.latitude, myCurrentPosition.longitude, distance);
+                float distance = FindDistance(myLastPosition, myCurrentPosition);
 
                 //SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
                 String val = _Pref.getString("currentActivity", "N/A");//use int
                 if (val == "Walking") {
-                    walkDistance += distance[0];
-                    combinedDistance += distance[0];
+                    walkDistance += distance;
+                    combinedDistance += distance;
                     progressWalk.setProgress((int) walkDistance);
                     progressBoth.setProgress((int) combinedDistance);
                 } else if (val == "Running") {
-                    runDistance += distance[0];
-                    combinedDistance += distance[0];
+                    runDistance += distance;
+                    combinedDistance += distance;
                     progressRun.setProgress((int) runDistance);
                     progressBoth.setProgress((int) combinedDistance);
                 }
