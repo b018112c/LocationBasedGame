@@ -117,6 +117,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private int t2Count = 0;
     private int t3Count = 0;
 
+    private static final int collectionRadius = 75;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -466,47 +468,51 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (mDrop != null && marker.equals(mDrop)) {
-                    OnDropRemoved();
-                    dropTimer.cancel();
-                    txtPylonCount.setText(String.format("%d", AddPylon(2)));
-                    return true;
-                } else if (marker.getSnippet().equals("T1") && otherItems > 0) { //probably don't need the snippets
-                    tier1List.remove(marker);
-                    marker.remove();
-                    //otherItems -= 1;
-                    t1Count += 1;
-                    textT1Count.setText(String.format("%d", t1Count));
-                    SharedPreferences.Editor editor = _Pref.edit();
-                    //editor.putInt("otherItems", otherItems);
-                    editor.putInt("tier1Count", t1Count);
-                    editor.commit();
-                    saveCollectibles();
-                    return true;
-                } else if (marker.getSnippet().equals("T2") && walkItems > 0) {
-                    tier2List.remove(marker);
-                    marker.remove();
-                    walkItems -= 1;
-                    t2Count += 1;
-                    textT2Count.setText(String.format("%d", t2Count));
-                    SharedPreferences.Editor editor = _Pref.edit();
-                    editor.putInt("walkItems", walkItems);
-                    editor.putInt("tier2Count", t2Count);
-                    editor.commit();
-                    saveCollectibles();
-                    return true;
-                } else if (marker.getSnippet().equals("T3") && runItems > 0) {
-                    tier3List.remove(marker);
-                    marker.remove();
-                    runItems -= 1;
-                    t3Count += 1;
-                    textT3Count.setText(String.format("%d", t3Count));
-                    SharedPreferences.Editor editor = _Pref.edit();
-                    editor.putInt("runItems", runItems);
-                    editor.putInt("tier3Count", t3Count);
-                    editor.commit();
-                    saveCollectibles();
-                    return true;
+                float pickupDist = FindDistance(marker.getPosition(), myCurrentPosition);
+                if (pickupDist < collectionRadius) {
+
+                    if (mDrop != null && marker.equals(mDrop)) {
+                        OnDropRemoved();
+                        dropTimer.cancel();
+                        txtPylonCount.setText(String.format("%d", AddPylon(2)));
+                        return true;
+                    } else if (marker.getSnippet().equals("T1") && otherItems > 0) { //probably don't need the snippets
+                        tier1List.remove(marker);
+                        marker.remove();
+                        //otherItems -= 1;
+                        t1Count += 1;
+                        textT1Count.setText(String.format("%d", t1Count));
+                        SharedPreferences.Editor editor = _Pref.edit();
+                        //editor.putInt("otherItems", otherItems);
+                        editor.putInt("tier1Count", t1Count);
+                        editor.commit();
+                        saveCollectibles();
+                        return true;
+                    } else if (marker.getSnippet().equals("T2") && walkItems > 0) {
+                        tier2List.remove(marker);
+                        marker.remove();
+                        walkItems -= 1;
+                        t2Count += 1;
+                        textT2Count.setText(String.format("%d", t2Count));
+                        SharedPreferences.Editor editor = _Pref.edit();
+                        editor.putInt("walkItems", walkItems);
+                        editor.putInt("tier2Count", t2Count);
+                        editor.commit();
+                        saveCollectibles();
+                        return true;
+                    } else if (marker.getSnippet().equals("T3") && runItems > 0) {
+                        tier3List.remove(marker);
+                        marker.remove();
+                        runItems -= 1;
+                        t3Count += 1;
+                        textT3Count.setText(String.format("%d", t3Count));
+                        SharedPreferences.Editor editor = _Pref.edit();
+                        editor.putInt("runItems", runItems);
+                        editor.putInt("tier3Count", t3Count);
+                        editor.commit();
+                        saveCollectibles();
+                        return true;
+                    }
                 }
                 return false;
             }
