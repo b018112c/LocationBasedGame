@@ -37,18 +37,27 @@
             android:id="@+id/bgImage1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
-            android:layout_marginRight="320dp"
+            android:layout_gravity="top|left"
+            android:layout_marginStart="310dp"
             android:layout_marginTop="2dp"
             android:adjustViewBounds="true"
             android:background="@drawable/alltiers" />
 
         <TextView
+            android:id="@+id/textT1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_marginStart="340dp"
+            android:layout_marginTop="1dp"
+            android:text="0" />
+
+        <TextView
             android:id="@+id/textT2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:layout_marginRight="330dp"
+            android:layout_gravity="left|top"
+            android:layout_marginStart="340dp"
             android:layout_marginTop="20dp"
             android:text="0" />
 
@@ -56,8 +65,8 @@
             android:id="@+id/textT3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:layout_marginRight="330dp"
+            android:layout_gravity="left|top"
+            android:layout_marginStart="340dp"
             android:layout_marginTop="39dp"
             android:text="0" />
 
@@ -66,26 +75,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|bottom"
-            android:layout_marginBottom="15dp"
-            android:layout_marginEnd="54dp"
-            android:padding="12dp"
-            android:text="N/A" />
+            android:layout_marginBottom="30dp"
+            android:layout_marginEnd="72dp"
+            android:padding="2dp"
+            android:background="@color/colorAccent"
+            android:text="0" />
 
         <ProgressBar
             android:id="@+id/progressBoth"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="278dp"
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
+            android:layout_gravity="left|top"
             android:layout_marginTop="3dp"
             android:max="500" />
 
         <ProgressBar
             android:id="@+id/progressWalk"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="278dp"
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
+            android:layout_gravity="left|top"
             android:layout_marginTop="22dp"
             android:max="500"
             android:progress="300"/>
@@ -93,46 +103,43 @@
         <ProgressBar
             android:id="@+id/progressRun"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="278dp"
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
+            android:layout_gravity="left|top"
             android:layout_marginTop="41dp"
             android:max="2500" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="26dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:layout_marginEnd="295dp"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="282dp"
             android:layout_marginTop="1dp"
+            android:textAlignment="center"
+            android:background="#edce07"
             android:text="∞" />
+
 
         <TextView
             android:id="@+id/textWalk"
-            android:layout_width="wrap_content"
+            android:layout_width="26dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:layout_marginEnd="295dp"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="282dp"
             android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:background="#fc6e02"
             android:text="0" />
-
 
         <TextView
             android:id="@+id/textRun"
-            android:layout_width="wrap_content"
+            android:layout_width="26dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:layout_marginRight="295dp"
+            android:layout_gravity="left|top"
+            android:layout_marginStart="282dp"
             android:layout_marginTop="39dp"
-            android:text="0" />
-
-        <TextView
-            android:id="@+id/textT1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
-            android:layout_marginRight="330dp"
-            android:layout_marginTop="1dp"
+            android:textAlignment="center"
+            android:background="#ed0000"
             android:text="0" />
 
     </fragment>
