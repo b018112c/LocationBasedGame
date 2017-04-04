@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -133,6 +134,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         progressWalk = (ProgressBar) findViewById(R.id.progressWalk);
         progressWalk.getProgressDrawable().setColorFilter(Color.rgb(255, 127, 0), android.graphics.PorterDuff.Mode.SRC_IN);
         progressWalk.setScaleY(4f);
+
         textRun = (TextView) findViewById(R.id.textRun);
         progressRun = (ProgressBar) findViewById(R.id.progressRun);
         progressRun.getProgressDrawable().setColorFilter(Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
@@ -143,6 +145,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         textT1Count = (TextView) findViewById(R.id.textT1);
         textT2Count = (TextView) findViewById(R.id.textT2);
         textT3Count = (TextView) findViewById(R.id.textT3);
+
 
         _Pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
 
