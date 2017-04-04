@@ -140,7 +140,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         progressRun.getProgressDrawable().setColorFilter(Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
         progressRun.setScaleY(4f);
         progressBoth = (ProgressBar) findViewById(R.id.progressBoth);
-        progressBoth.getProgressDrawable().setColorFilter(Color.YELLOW, android.graphics.PorterDuff.Mode.SRC_IN);
+        progressBoth.getProgressDrawable().setColorFilter(Color.BLUE, android.graphics.PorterDuff.Mode.SRC_IN);
         progressBoth.setScaleY(4f);
         textT1Count = (TextView) findViewById(R.id.textT1);
         textT2Count = (TextView) findViewById(R.id.textT2);
