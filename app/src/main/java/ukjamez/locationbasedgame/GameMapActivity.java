@@ -75,7 +75,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private LocationRequest mLocationRequest;
     private LocationServices mLocationManager;
     private LocationSource.OnLocationChangedListener mListener;
-    private boolean mDropUsed = false;
+    //private boolean mDropUsed = false;
 
     private LatLng myCurrentPosition;
     private LatLng myLastPosition;
@@ -372,6 +372,11 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         .title("Airdrop"));
                 mDrop.showInfoWindow();
                 btnDrop.setVisibility(View.INVISIBLE); //add drop marker top map, hide drop button
+            }else{
+                btnDrop.setVisibility(View.VISIBLE);
+                SharedPreferences.Editor editor = _Pref.edit();
+                editor.putBoolean("dropUsed", false);
+                editor.commit();
             }
         }
 
@@ -617,10 +622,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         return new LatLng(newY, newX);
     }
 
-    public LatLng newRandomMarker(int radius, double distance, LatLng location) {
-        return myCurrentPosition;
-    }
-
     private Circle myLocationRadius;
 
     @Override
@@ -648,12 +649,13 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         myCurrentPosition = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
         myLastPosition = myCurrentPosition;
 
+        if (myLocationRadius ==null){
         myLocationRadius = mMap.addCircle(new CircleOptions()
                 .center(myCurrentPosition)
                 .radius(75)
                 .strokeWidth(1.5f)
                 .strokeColor(Color.argb(255, 0, 127, 255))
-                .fillColor(Color.argb(100, 0, 240, 255)));
+                .fillColor(Color.argb(100, 0, 240, 255)));}
 
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
