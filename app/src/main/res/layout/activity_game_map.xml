@@ -32,115 +32,237 @@
             android:layout_margin="16dp"
             android:src="@mipmap/ic_flash_on_white_18dp" />
 
-
-        <ImageView
-            android:id="@+id/bgImage1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|left"
-            android:layout_marginStart="310dp"
-            android:layout_marginTop="2dp"
-            android:adjustViewBounds="true"
-            android:background="@drawable/alltiers" />
-
-        <TextView
-            android:id="@+id/textT1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|left"
-            android:layout_marginStart="340dp"
-            android:layout_marginTop="1dp"
-            android:text="0" />
-
-        <TextView
-            android:id="@+id/textT2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginStart="340dp"
-            android:layout_marginTop="20dp"
-            android:text="0" />
-
-        <TextView
-            android:id="@+id/textT3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginStart="340dp"
-            android:layout_marginTop="39dp"
-            android:text="0" />
-
         <TextView
             android:id="@+id/textP"
-            android:layout_width="wrap_content"
+            android:layout_width="26dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right|bottom"
             android:layout_marginBottom="30dp"
-            android:layout_marginEnd="72dp"
+            android:layout_marginEnd="80dp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:background="@drawable/rounded"
+            android:textColor="@color/white"
             android:padding="2dp"
-            android:background="@color/colorAccent"
             android:text="0" />
 
-        <ProgressBar
-            android:id="@+id/progressBoth"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginTop="3dp"
-            android:max="500" />
 
-        <ProgressBar
-            android:id="@+id/progressWalk"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginTop="22dp"
-            android:max="500"
-            android:progress="300"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <ProgressBar
-            android:id="@+id/progressRun"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginTop="41dp"
-            android:max="2500" />
+            <ImageView
+                android:id="@+id/bgImage1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="top|right"
+                android:adjustViewBounds="true"
+                android:background="@drawable/alltiers" />
 
-        <TextView
-            android:layout_width="26dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginLeft="282dp"
-            android:layout_marginTop="1dp"
-            android:textAlignment="center"
-            android:background="#edce07"
-            android:text="∞" />
+            <TextView
+                android:id="@+id/textT1"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:textStyle="bold"
+                android:layout_gravity="right|top"
+                android:layout_marginEnd="8dp"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/textT2"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_above="@+id/textRun"
+                android:textStyle="bold"
+                android:layout_alignStart="@+id/textT1"
+                android:layout_gravity="right|top"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/textT3"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:textStyle="bold"
+                android:layout_alignStart="@+id/textT2"
+                android:layout_below="@+id/textT2"
+                android:layout_gravity="right|top"
+                android:text="0" />
+
+            <ProgressBar
+                android:id="@+id/progressBoth"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_above="@+id/textWalk"
+                android:layout_gravity="right|top"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/textView"
+                android:max="500"
+                android:layout_alignParentTop="true" />
+
+            <ProgressBar
+                android:id="@+id/progressWalk"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_above="@+id/textRun"
+                android:layout_gravity="right|top"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/textWalk"
+                android:max="500" />
+
+            <ProgressBar
+                android:id="@+id/progressRun"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="19dp"
+                android:layout_alignBottom="@+id/textRun"
+                android:layout_gravity="right|top"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/textRun"
+                android:max="2500" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="26dp"
+                android:layout_height="18dp"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="right|top"
+                android:textStyle="bold"
+                android:layout_toStartOf="@+id/bgImage1"
+                android:background="#edce07"
+                android:text="∞"
+                android:textAlignment="center" />
 
 
-        <TextView
-            android:id="@+id/textWalk"
-            android:layout_width="26dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginLeft="282dp"
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:background="#fc6e02"
-            android:text="0" />
+            <TextView
+                android:id="@+id/textWalk"
+                android:layout_width="26dp"
+                android:layout_height="19dp"
+                android:layout_below="@+id/textView"
+                android:layout_gravity="right|top"
+                android:textStyle="bold"
+                android:layout_toStartOf="@+id/bgImage1"
+                android:background="#fc6e02"
+                android:text="0"
+                android:textAlignment="center" />
 
-        <TextView
-            android:id="@+id/textRun"
-            android:layout_width="26dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|top"
-            android:layout_marginStart="282dp"
-            android:layout_marginTop="39dp"
-            android:textAlignment="center"
-            android:background="#ed0000"
-            android:text="0" />
+            <TextView
+                android:id="@+id/textRun"
+                android:layout_width="26dp"
+                android:layout_height="19dp"
+                android:layout_below="@+id/textWalk"
+                android:layout_gravity="right|top"
+                android:textStyle="bold"
+                android:layout_toEndOf="@+id/progressWalk"
+                android:background="#ed0000"
+                android:text="0"
+                android:textAlignment="center" />
+
+        </RelativeLayout>
+
+        <!--<ImageView-->
+            <!--android:id="@+id/bgImage2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="top|left"-->
+            <!--android:layout_marginStart="310dp"-->
+            <!--android:layout_marginTop="0dp"-->
+            <!--android:adjustViewBounds="true"-->
+            <!--android:background="@drawable/alltiers" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/textT1"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="top|left"-->
+            <!--android:layout_marginStart="340dp"-->
+            <!--android:layout_marginTop="1dp"-->
+            <!--android:text="0" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/textT2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginStart="340dp"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:text="0" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/textT3"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginStart="340dp"-->
+            <!--android:layout_marginTop="39dp"-->
+            <!--android:text="0" />-->
+
+
+        <!--<ProgressBar-->
+            <!--android:id="@+id/progressBoth"-->
+            <!--style="?android:attr/progressBarStyleHorizontal"-->
+            <!--android:layout_width="280dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginTop="3dp"-->
+            <!--android:max="500" />-->
+
+        <!--<ProgressBar-->
+            <!--android:id="@+id/progressWalk"-->
+            <!--style="?android:attr/progressBarStyleHorizontal"-->
+            <!--android:layout_width="280dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginTop="22dp"-->
+            <!--android:max="500"-->
+            <!--android:progress="300"/>-->
+
+        <!--<ProgressBar-->
+            <!--android:id="@+id/progressRun"-->
+            <!--style="?android:attr/progressBarStyleHorizontal"-->
+            <!--android:layout_width="280dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginTop="41dp"-->
+            <!--android:max="2500" />-->
+
+        <!--<TextView-->
+            <!--android:layout_width="26dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginLeft="282dp"-->
+            <!--android:layout_marginTop="1dp"-->
+            <!--android:textAlignment="center"-->
+            <!--android:background="#edce07"-->
+            <!--android:text="∞" />-->
+
+
+        <!--<TextView-->
+            <!--android:id="@+id/textWalk"-->
+            <!--android:layout_width="26dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginLeft="282dp"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:textAlignment="center"-->
+            <!--android:background="#fc6e02"-->
+            <!--android:text="0" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/textRun"-->
+            <!--android:layout_width="26dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="left|top"-->
+            <!--android:layout_marginStart="282dp"-->
+            <!--android:layout_marginTop="39dp"-->
+            <!--android:textAlignment="center"-->
+            <!--android:background="#ed0000"-->
+            <!--android:text="0" />-->
 
     </fragment>
 
