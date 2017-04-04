@@ -621,6 +621,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         return myCurrentPosition;
     }
 
+    private Circle myLocationRadius;
+
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -641,14 +643,17 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         mMap.setMyLocationEnabled(true);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
         mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         myCurrentPosition = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
         myLastPosition = myCurrentPosition;
+
+        myLocationRadius = mMap.addCircle(new CircleOptions()
+                .center(myCurrentPosition)
+                .radius(75)
+                .strokeWidth(1.5f)
+                .strokeColor(Color.argb(255, 0, 127, 255))
+                .fillColor(Color.argb(100, 0, 240, 255)));
 
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -691,6 +696,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             myCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
             LatLngBounds bounds = new LatLngBounds(myCurrentPosition, myCurrentPosition);
             mMap.setLatLngBoundsForCameraTarget(bounds);
+            myLocationRadius.setCenter(myCurrentPosition);
 
             if (!CameraSet) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
