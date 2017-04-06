@@ -502,6 +502,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         marker.remove();
                         walkItems -= 1;
                         t2Count += 1;
+                        textWalk.setText(String.format("%d", walkItems));
                         textT2Count.setText(String.format("%d", t2Count));
                         SharedPreferences.Editor editor = _Pref.edit();
                         editor.putInt("walkItems", walkItems);
@@ -514,6 +515,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         marker.remove();
                         runItems -= 1;
                         t3Count += 1;
+                        textRun.setText(String.format("%d", runItems));
                         textT3Count.setText(String.format("%d", t3Count));
                         SharedPreferences.Editor editor = _Pref.edit();
                         editor.putInt("runItems", runItems);
@@ -643,6 +645,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000, pendingIntent);
 
         mMap.setMyLocationEnabled(true);
+
 
         mLocationManager.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
