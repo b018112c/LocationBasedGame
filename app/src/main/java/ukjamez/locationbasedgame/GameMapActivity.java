@@ -368,7 +368,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 LatLng dl = (new LatLng(Double.parseDouble(splitLoc[0]), Double.parseDouble(splitLoc[1])));
                 mDrop = mMap.addMarker(new MarkerOptions()
                         .position(dl)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport))
                         .title("Airdrop"));
                 mDrop.showInfoWindow();
                 btnDrop.setVisibility(View.INVISIBLE); //add drop marker top map, hide drop button
@@ -538,7 +538,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     AddDropTime(900000);
                     mDrop = mMap.addMarker(new MarkerOptions()
                             .position(placeRandomMarker(500, 1, myCurrentPosition))
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport))
                             .title("Airdrop"));
                     mDrop.showInfoWindow();
                     btnDrop.setVisibility(View.INVISIBLE);
