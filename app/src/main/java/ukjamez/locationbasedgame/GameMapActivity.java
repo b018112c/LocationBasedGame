@@ -152,7 +152,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
         walkDistance = _Pref.getFloat("walkDistance", 0);
         runDistance = _Pref.getFloat("runDistance", 0);
-        combinedDistance = _Pref.getFloat("bothDistance", 0);
+        combinedDistance = _Pref.getFloat("combinedDistance", 0);
         walkItems = _Pref.getInt("walkItems", 2);
         textWalk.setText(Integer.toString(walkItems));
         runItems = _Pref.getInt("runItems", 1);
@@ -736,7 +736,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 if ((int) walkDistance >= 500) {
                     walkDistance -= 500;
                     walkItems += 2;
-                    textWalk.setText(Float.toString(walkItems));
+                    textWalk.setText(Integer.toString(walkItems));
                     SharedPreferences.Editor editor = _Pref.edit();
                     editor.putInt("walkItems", walkItems);
                     editor.commit();
@@ -744,7 +744,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 if ((int) runDistance >= 500) {
                     runDistance -= 500;
                     runItems += 2;
-                    textRun.setText(Float.toString(runItems));
+                    textRun.setText(Integer.toString(runItems));
                     SharedPreferences.Editor editor = _Pref.edit();
                     editor.putInt("runItems", runItems);
                     editor.commit();
@@ -753,8 +753,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     combinedDistance -= 2500;
                     walkItems += 5;
                     runItems += 3;
-                    textRun.setText(Float.toString(runItems));
-                    textWalk.setText(Float.toString(walkItems));
+                    textRun.setText(Integer.toString(runItems));
+                    textWalk.setText(Integer.toString(walkItems));
                     SharedPreferences.Editor editor = _Pref.edit();
                     editor.putInt("runItems", runItems);
                     editor.putInt("walkItems", walkItems);
@@ -764,7 +764,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 SharedPreferences.Editor editor = _Pref.edit();
                 editor.putFloat("walkDistance", walkDistance);
                 editor.putFloat("runDistance", runDistance);
-                editor.putFloat("combinedDistance", runDistance);
+                editor.putFloat("combinedDistance", combinedDistance);
                 editor.commit();
             }
         }
