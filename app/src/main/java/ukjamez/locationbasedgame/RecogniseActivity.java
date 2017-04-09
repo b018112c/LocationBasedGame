@@ -29,6 +29,7 @@ public class RecogniseActivity extends IntentService {
     //public TextView textTestActivity;
 
     public String CurrentActivityName = "checking";
+    public String LastDifferentActivity = "N/A";
     private static final String PrefsFile = "PrefsFile";
 
     @Override
@@ -42,9 +43,9 @@ public class RecogniseActivity extends IntentService {
             int runningConfidence = result.getActivityConfidence(8);
 
             if(mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && runningConfidence >= walkingConfidence){
-                if(result.getActivityConfidence(0) < 40)
+                if(result.getActivityConfidence(0) < 40 && LastDifferentActivity != "Driving")
                 CurrentActivityName = "Running";
-            } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT){
+            } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && LastDifferentActivity != "Driving"){
                 CurrentActivityName = ("Walking");
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_BICYCLE){
                 CurrentActivityName = ("Cycling");
@@ -54,6 +55,10 @@ public class RecogniseActivity extends IntentService {
                 CurrentActivityName = ("Still");
             } else{
                 CurrentActivityName = ("Other");
+            }
+
+            if (CurrentActivityName != LastDifferentActivity){
+                LastDifferentActivity = CurrentActivityName;
             }
 
                 SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
