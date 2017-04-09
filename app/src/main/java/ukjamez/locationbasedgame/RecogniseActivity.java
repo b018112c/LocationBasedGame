@@ -43,10 +43,19 @@ public class RecogniseActivity extends IntentService {
             int runningConfidence = result.getActivityConfidence(8);
 
             if(mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && runningConfidence >= walkingConfidence){
-                if(result.getActivityConfidence(0) < 40 && LastDifferentActivity != "Driving")
-                CurrentActivityName = "Running";
-            } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT && LastDifferentActivity != "Driving"){
-                CurrentActivityName = ("Walking");
+                if(result.getActivityConfidence(0) < 40 ){
+                    if (LastDifferentActivity == "Driving"){
+                        CurrentActivityName = "Driving";
+                    }else{
+                        CurrentActivityName = "Running";
+                    }
+                }
+            } else if (mostLikelyActivity.getType() == DetectedActivity.ON_FOOT){
+                if (LastDifferentActivity == "Driving"){
+                    CurrentActivityName = "Driving";
+                }else{
+                    CurrentActivityName = ("Walking");
+                }
             } else if (mostLikelyActivity.getType() == DetectedActivity.ON_BICYCLE){
                 CurrentActivityName = ("Cycling");
             } else if (mostLikelyActivity.getType() == DetectedActivity.IN_VEHICLE){
@@ -56,6 +65,7 @@ public class RecogniseActivity extends IntentService {
             } else{
                 CurrentActivityName = ("Other");
             }
+
 
             if (CurrentActivityName != LastDifferentActivity){
                 LastDifferentActivity = CurrentActivityName;
