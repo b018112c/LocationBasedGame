@@ -42,29 +42,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.maps.model.Polyline;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Random;
-import java.util.Timer;
 
 
 public class GameMapActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -75,7 +56,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private LocationRequest mLocationRequest;
     private LocationServices mLocationManager;
     private LocationSource.OnLocationChangedListener mListener;
-    //private boolean mDropUsed = false;
 
     private LatLng myCurrentPosition;
     private LatLng myLastPosition;
@@ -86,7 +66,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private TextView txtPylonCount;
     public TextView textWalk;
     public TextView textRun;
-    //public TextView textBoth;
+
     public ProgressBar progressWalk;
     public ProgressBar progressRun;
     public ProgressBar progressBoth;
@@ -106,7 +86,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
     private Boolean CameraSet = false;
 
-    private SharedPreferences _Pref;//= getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
+    private SharedPreferences _Pref;
 
     private float walkDistance = 0;
     private float runDistance = 0;
@@ -120,6 +100,10 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
     private int t3Count = 0;
 
     private static final int collectionRadius = 75;
+
+    private CountDownTimer dropTimer;
+
+    private Circle myLocationRadius;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +142,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         runItems = _Pref.getInt("runItems", 1);
         textRun.setText(Integer.toString(runItems));
         otherItems = 5;
-        //other items set text activity field
+
         progressWalk.setProgress((int) walkDistance);
         progressRun.setProgress((int) runDistance);
         progressBoth.setProgress((int) combinedDistance);
@@ -184,6 +168,8 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         mapFragment.getMapAsync(this);
 
     }
+
+    //###############Saving and loading Data Methods################
 
     private void saveLocations() {
 
@@ -303,7 +289,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
     }
 
-    private CountDownTimer dropTimer;
+//##############################Map Related Methods################################
 
     public void AddDropTime(long newTimer) {
         dropTimer = new CountDownTimer(newTimer, 1000) {
@@ -322,11 +308,13 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }.start();
     }
 
+
     private float FindDistance(LatLng firstLoc, LatLng secondLoc){
         float[] gap = new float[1];
         Location.distanceBetween(firstLoc.latitude, firstLoc.longitude, secondLoc.latitude, secondLoc.longitude, gap);
         return gap[0];
     }
+
 
     private ArrayList<Marker> CollectibleCheckInCircle(ArrayList<Marker> collectibleList){
         ArrayList<Marker> keepList = new ArrayList<>(collectibleList);
@@ -346,6 +334,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
         return keepList;
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -424,7 +413,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                     //randomly add animal markers
                     int tier1quantity = random.nextInt(3) + 2;
                     for (int i = 0; i < tier1quantity; i++) {
-                        LatLng location = placeRandomMarker(215, Math.random(), circleLocation);//store this
+                        LatLng location = placeRandomMarker(215, Math.random(), circleLocation);
                         tier1List.add(mMap.addMarker(new MarkerOptions()
                                 .position(location).snippet("T1")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.fox1))));
@@ -432,7 +421,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
                     int tier2quantity = random.nextInt(2) + 0;
                     for (int i = 0; i < tier2quantity; i++) {
-                        LatLng location = placeRandomMarker(215, Math.random(), circleLocation);//store this
+                        LatLng location = placeRandomMarker(215, Math.random(), circleLocation);
                         tier2List.add(mMap.addMarker(new MarkerOptions()
                                 .position(location).snippet("T2")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.deer))));
@@ -450,14 +439,14 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         for (Circle marker : unconnectedDomesList) {
                             int tier2quantity2 = random.nextInt(4) + 2;
                             for (int i = 0; i < tier2quantity2; i++) {
-                                LatLng location = placeRandomMarker(215, Math.random(), marker.getCenter());//store this
+                                LatLng location = placeRandomMarker(215, Math.random(), marker.getCenter());
                                 tier2List.add(mMap.addMarker(new MarkerOptions()
                                         .position(location).snippet("T2")
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.deer))));
                             }
                             int tier3quantity2 = random.nextInt(3) + 0;
                             for (int i = 0; i < tier3quantity2; i++) {
-                                LatLng location = placeRandomMarker(215, Math.random(), marker.getCenter());//store this
+                                LatLng location = placeRandomMarker(215, Math.random(), marker.getCenter());
                                 tier3List.add(mMap.addMarker(new MarkerOptions()
                                         .position(location).snippet("T3")
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.tier3))));
@@ -485,14 +474,12 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                         dropTimer.cancel();
                         txtPylonCount.setText(String.format("%d", AddPylon(2)));
                         return true;
-                    } else if (marker.getSnippet().equals("T1") && otherItems > 0) { //probably don't need the snippets
+                    } else if (marker.getSnippet().equals("T1") && otherItems > 0) {
                         tier1List.remove(marker);
                         marker.remove();
-                        //otherItems -= 1;
                         t1Count += 1;
                         textT1Count.setText(String.format("%d", t1Count));
                         SharedPreferences.Editor editor = _Pref.edit();
-                        //editor.putInt("otherItems", otherItems);
                         editor.putInt("tier1Count", t1Count);
                         editor.commit();
                         saveCollectibles();
@@ -550,15 +537,14 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
                 }
             }
         });
-        //if (myCurrentPosition != null) {}
     }
+
 
     private void OnDropRemoved() {
         mDrop.remove();
         btnDrop.setVisibility(View.VISIBLE);
         SharedPreferences.Editor editor = _Pref.edit();
         editor.putBoolean("dropUsed", false);
-        //editor.putLong("dropTime", 900000);
         editor.commit();
     }
 
@@ -568,10 +554,12 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         super.onStart();
     }
 
+
     protected void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
     }
+
 
     @Override
     public void onPause() {
@@ -581,28 +569,26 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-        //if (mGoogleApiClient.isConnected() /*&& !mRequestingLocationUpdates*/) {
-        //LocationUpdatesBegin();
-        //}
     }
+
+    //#################Location Related Methods###########################
 
     private int AddPylon(int val) {
         SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
 
-        int pylonCount = pref.getInt("pylonCount", 3); //,default
+        int pylonCount = pref.getInt("pylonCount", 3);
         int finalValue = pylonCount + val;
         editor.putInt("pylonCount", finalValue);
         editor.apply();
 
         return finalValue;
     }
+
 
     public LatLng placeRandomMarker(int radius, double distance, LatLng location) {
         double r = radius / 111320f;
@@ -624,7 +610,6 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         return new LatLng(newY, newX);
     }
 
-    private Circle myLocationRadius;
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -669,6 +654,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
 
     }
 
+
     @Override
     public void onConnectionSuspended(int i) {
         if (mLocationManager != null) {
@@ -676,20 +662,23 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
         }
     }
 
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        //buildGoogleApiClient();
     }
+
 
     @Override
     public void activate(OnLocationChangedListener listener) {
         mListener = listener;
     }
 
+
     @Override
     public void deactivate() {
         mListener = null;
     }
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -719,8 +708,7 @@ public class GameMapActivity extends FragmentActivity implements GoogleApiClient
             if (myLastPosition != null) {
                 float distance = FindDistance(myLastPosition, myCurrentPosition);
 
-                //SharedPreferences pref = getApplicationContext().getSharedPreferences(PrefsFile, MODE_PRIVATE);
-                String val = _Pref.getString("currentActivity", "N/A");//use int
+                String val = _Pref.getString("currentActivity", "N/A");
                 if (val == "Walking") {
                     walkDistance += distance;
                     combinedDistance += distance;

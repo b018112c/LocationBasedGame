@@ -23,10 +23,7 @@ public class RecogniseActivity extends IntentService {
 
     public RecogniseActivity(String name) {
         super(name);
-        //textTestActivity = (TextView) textTestActivity.findViewById(R.id.textTest);
     }
-
-    //public TextView textTestActivity;
 
     public String CurrentActivityName = "checking";
     public String LastDifferentActivity = "N/A";
